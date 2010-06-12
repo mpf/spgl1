@@ -2,8 +2,6 @@
 = SGPL1: A solver for large-scale sparse reconstruction
   Version 1.7, May 2009
 
-= Introduction
-
 SPGL1 is a Matlab solver for large-scale one-norm regularized least
 squares. It is designed to solve any of the following three problems:
 
@@ -34,8 +32,8 @@ squares. It is designed to solve any of the following three problems:
 \)
 ~~~
 
-SPGL1 relies only on matrix-vector operations Ax and ATy and accepts
-both explicit matrices and functions that evaluate these
+SPGL1 relies only on matrix-vector operations $Ax$ and $A^T y$ and
+accepts both explicit matrices and functions that evaluate these
 products. SPGL1 is suitable for problems that are in the complex
 domain.  The theory underlying SPGL1 is described in these papers:
 

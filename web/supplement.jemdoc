@@ -6,14 +6,13 @@
 
 ~~~
 {Download}
-- scripts: [spgl1supplement-1.0_scripts.zip zip],
-           [spgl1supplement-1.0_scripts.tgz tgz]
-- data: [spgl1supplement-1.0.zip zip], [spgl1supplement-1.0.tgz tgz]
+- scripts: [http://www.cs.ubc.ca/~mpf/downloads/spgl1supplement-1.0_scripts.zip zip],
+           [http://www.cs.ubc.ca/~mpf/downloads/spgl1supplement-1.0_scripts.tgz tgz]
+- data: [http://www.cs.ubc.ca/~mpf/downloads/spgl1supplement-1.0.zip zip], [http://www.cs.ubc.ca/~mpf/downloads/spgl1supplement-1.0_scripts.tgz tgz]
 ~~~
 
-
 All figures and tables in this
-[http://www.cs.ubc.ca/~mpf/downloads/BergFriedlander08.pdf paper], as
+[http://www.cs.ubc.ca/~mpf/papers/BergFriedlander08.pdf paper], as
 well as the data to generate them, are reproducible.  In order to do
 so, download the Matlab scripts from the box on the right. Since
 generating the required data takes a lot of time we suggest

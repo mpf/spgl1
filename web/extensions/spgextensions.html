@@ -1,0 +1,291 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+<html xmlns:mwsh="http://www.mathworks.com/namespace/mcode/v1/syntaxhighlight.dtd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>SPGL1: Extensions</title>
+      <meta name="generator" content="MATLAB 7.6">
+      <meta name="date" content="2008-08-19">
+      <meta name="m-file" content="spgextensions"><style>
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head>
+   <body>
+      <div class="content">
+         <h1>SPGL1: Extensions</h1>
+         <introduction>
+            <p><a href="http://www.cs.ubc.ca/~ewout78">Ewout van den Berg</a>, August 2008
+            </p>
+         </introduction>
+         <h2>Contents</h2>
+         <div>
+            <ul>
+               <li><a href="#1">Introduction</a></li>
+               <li><a href="#2">Generate random data</a></li>
+               <li><a href="#3">Multiple measurement vectors (MMV)</a></li>
+               <li><a href="#6">Group sparsity</a></li>
+               <li><a href="#10">Reference</a></li>
+            </ul>
+         </div>
+         <h2>Introduction<a name="1"></a></h2>
+         <p>Since the first release of SPGL1 (see <a href="http://www.cs.ubc.ca/labs/scl/spgl1/downloads/spgexamples/spgexamples.html">A brief tour</a> for the core features) we have made a number of extensions. These extensions are based on a slight generalization of the
+            core which can now solve
+         </p><pre>  minimize  ||x||_primal  subject to  ||Ax - b||_2 &lt;= sigma,</pre><p>provided the following three routines are given for:</p><pre>1. computation of the primal norm ||x||_primal,
+2. computation of the dual norm ||x||_dual,
+3. orthogonal projection onto the ball ||x||_primal &lt;= tau.</pre><p>Based on this we added SPG_MMV for BPDN with multiple measurement vectors, and SPG_GROUP for BPDN with groups imposed on the
+            unknown vector.
+         </p>
+         <h2>Generate random data<a name="2"></a></h2>
+         <p>Before applying the solvers we need to create a problem. We first create the measurement matrix A; later we create the sparse
+            coefficients, which have a problem specific structure.
+         </p><pre class="codeinput">rand(<span class="string">'twister'</span>,0); randn(<span class="string">'state'</span>,5);  <span class="comment">% Initialize random number generator</span>
+m = 50; n = 128;                      <span class="comment">% Measurement matrix is m x n</span>
+k = 14;                               <span class="comment">% Set sparsity level x0</span>
+A = randn(m,n);                       <span class="comment">% Random encoding matrix</span>
+</pre><h2>Multiple measurement vectors (MMV)<a name="3"></a></h2>
+         <p>The solvers SPG_BP and SPG_BPDN solvers can handle problems with complex unknowns:</p><pre> minimize  ||z||_1  subject to A*z = b.</pre><p>When A is a real matrix we can rewrite this problem as</p><pre> minimize  ||X||_1,2  subject to  A*X = B,</pre><p>with X=[real(z),imag(z)], B=[real(b),imag(b)], and with the mixed (1,2)-norm defined as</p><pre> ||X||_1,2 := sum_i ||X(i,:)'||_2.</pre><p>It turns out that this formulation is applicable not only to complex BP, but also to the multiple measurement vector problem.
+            In these problems the there are multiple measurement given by B = AX + E, and, importantly, X is assumed to be row-sparse
+            (many zero rows). This gives rise to the MMV BPDN problem:
+         </p><pre> minimize  ||X||_1,2  subject to  ||A*X - B||_2,2 &lt;= sigma,</pre><p>with</p><pre> ||X||_2,2 := sqrt(sum_i ||X(i,:)'||_2^2).</pre><p>To see how this works, we generate a row-sparse coefficient matrix X0 and corresponding matrix B,</p><pre class="codeinput">v  = 3;                                <span class="comment">% Number of observations</span>
+p  = randperm(n); p = p(1:k);          <span class="comment">% Location of non-zero rows in X</span>
+X0 = zeros(n,v); X0(p,:) = randn(k,v); <span class="comment">% The k-row-sparse solution</span>
+B  = A * X0;                           <span class="comment">% The observation matrix</span>
+</pre><p>and call SPG_MMV to solve the MMV problem with sigma = 0:</p><pre class="codeinput">opts = spgSetParms(<span class="string">'verbosity'</span>,0);  <span class="comment">% Turn off the SPGL1 log output</span>
+X = spg_mmv(A,B,0,opts);            <span class="comment">% Choose sigma = 0</span>
+</pre><p>To check that the solution X is indeed row-sparse and equal to X0, we plot X with each column represented by one line and
+            the original coefficients marked by circles:
+         </p><pre class="codeinput">plot(X); hold <span class="string">on</span>;               <span class="comment">% Plot solution</span>
+plot(p,X0(p,:),<span class="string">'o'</span>); hold <span class="string">off</span>;  <span class="comment">% Plot non-zero X0 coefficients</span>
+title(<span class="string">'Multiple Measurement Vector Basis Pursuit'</span>);
+</pre><img vspace="5" hspace="5" src="spgextensions_01.png"> <h2>Group sparsity<a name="6"></a></h2>
+         <p>In the MMV formulation row-sparsity is encouraged by taking the two-norm over the entries in each row. In the more general
+            setting sparsity may arise in groups that are known a priori but lack a regular pattern. Given a vector g containing the group
+            number corresponding to each entry in x we can define the group two-norm
+         </p><pre> ||X||_g,1 := sum_i ||x(g == i)||_2,</pre><p>and use this to formulate the group-sparsity optimization problem:</p><pre> minimize  ||x||_g,1  subject to  ||A*x - b||_2 &lt;= sigma.</pre><p>We create an example with 30 groups and choose three of them to contain non-zero random entries:</p><pre class="codeinput">nGroups = 30;
+groups  = sort(ceil(rand(n,1) * nGroups)); <span class="comment">% Sort for display purpose</span>
+p       = randperm(nGroups); p = p(1:3);
+idx     = ismember(groups,p);
+</pre><p>Next we generate the group-sparse vector and use the A generated for the MMV example to construct the observation vector b:</p><pre class="codeinput">x0 = zeros(n,1); x0(idx) = randn(sum(idx),1);
+b  = A*x0;
+</pre><p>The group-sparsity problem is then solved using spg_group as well as using spg_bp</p><pre class="codeinput">opts = spgSetParms(<span class="string">'verbosity'</span>,0);     <span class="comment">% Turn off the SPGL1 log output</span>
+x    = spg_group(A,b,groups,0,opts);   <span class="comment">% Solve group-sparse BP</span>
+xbp  = spg_bp(A,b,opts);               <span class="comment">% Solve generic BP</span>
+</pre><p>Plotting the result shows how the BP solution differs from x0 and the spg_group solution:</p><pre class="codeinput">plot(x0 ,<span class="string">'r*'</span>); hold <span class="string">on</span>
+stem(x  ,<span class="string">'b '</span>);
+plot(xbp,<span class="string">'c.'</span>); hold <span class="string">off</span>
+ylim([-1.5,2.5]);
+legend(<span class="string">'Original coefficients'</span>,<span class="keyword">...</span>
+       <span class="string">'Recovered coefficients (Group sparse)'</span>,<span class="keyword">...</span>
+       <span class="string">'Recovered coefficients (Basis Pursuit)'</span>);
+title(<span class="string">'Group-Sparse Basis Pursuit'</span>);
+</pre><img vspace="5" hspace="5" src="spgextensions_02.png"> <h2>Reference<a name="10"></a></h2>
+         <p>[BergFriedlander]  E. van den Berg and M. P. Friedlander, "Probing the Pareto frontier for basis pursuit solutions", January
+            2008 (revised May 2008). To appear in SIAM Journal on Scientific Computing.
+         </p><pre class="codeinput"><span class="comment">% $Id: spgextensions.m 1078 2008-08-20 06:34:55Z ewout78 $</span>
+</pre><p class="footer"><br>
+            Published with MATLAB&reg; 7.6<br></p>
+      </div>
+      <!--
+##### SOURCE BEGIN #####
+%% SPGL1: Extensions
+% <http://www.cs.ubc.ca/~ewout78 Ewout van den Berg>, August 2008
+%
+
+%% Introduction
+% Since the first release of SPGL1 (see
+% <http://www.cs.ubc.ca/labs/scl/spgl1/downloads/spgexamples/spgexamples.html
+% A brief tour> for the core features) we have made a number of
+% extensions. These extensions are based on a slight generalization
+% of the core which can now solve
+%
+%    minimize  ||x||_primal  subject to  ||Ax - b||_2 <= sigma,
+%
+% provided the following three routines are given for:
+%
+%  1. computation of the primal norm ||x||_primal,
+%  2. computation of the dual norm ||x||_dual,
+%  3. orthogonal projection onto the ball ||x||_primal <= tau.
+%
+% Based on this we added SPG_MMV for BPDN with multiple measurement
+% vectors, and SPG_GROUP for BPDN with groups imposed on the
+% unknown vector.
+
+%% Generate random data
+% Before applying the solvers we need to create a problem. We first
+% create the measurement matrix A; later we create the sparse
+% coefficients, which have a problem specific structure.
+
+rand('twister',0); randn('state',5);  % Initialize random number generator
+m = 50; n = 128;                      % Measurement matrix is m x n
+k = 14;                               % Set sparsity level x0
+A = randn(m,n);                       % Random encoding matrix
+
+%% Multiple measurement vectors (MMV)
+% The solvers SPG_BP and SPG_BPDN solvers can handle problems with
+% complex unknowns:
+%
+%   minimize  ||z||_1  subject to A*z = b.
+%
+% When A is a real matrix we can rewrite this problem as
+%
+%   minimize  ||X||_1,2  subject to  A*X = B,
+%
+% with X=[real(z),imag(z)], B=[real(b),imag(b)], and with the mixed
+% (1,2)-norm defined as
+%
+%   ||X||_1,2 := sum_i ||X(i,:)'||_2.
+%
+% It turns out that this formulation is applicable not only to
+% complex BP, but also to the multiple measurement vector
+% problem. In these problems the there are multiple measurement
+% given by B = AX + E, and, importantly, X is assumed to be
+% row-sparse (many zero rows). This gives rise to the MMV BPDN
+% problem:
+%
+%   minimize  ||X||_1,2  subject to  ||A*X - B||_2,2 <= sigma,
+%
+% with
+%
+%   ||X||_2,2 := sqrt(sum_i ||X(i,:)'||_2^2).
+%
+% To see how this works, we generate a row-sparse coefficient
+% matrix X0 and corresponding matrix B,
+
+v  = 3;                                % Number of observations
+p  = randperm(n); p = p(1:k);          % Location of non-zero rows in X
+X0 = zeros(n,v); X0(p,:) = randn(k,v); % The k-row-sparse solution
+B  = A * X0;                           % The observation matrix
+
+%%
+% and call SPG_MMV to solve the MMV problem with sigma = 0:
+
+opts = spgSetParms('verbosity',0);  % Turn off the SPGL1 log output
+X = spg_mmv(A,B,0,opts);            % Choose sigma = 0
+
+%%
+% To check that the solution X is indeed row-sparse and equal to
+% X0, we plot X with each column represented by one line and the
+% original coefficients marked by circles:
+
+plot(X); hold on;               % Plot solution
+plot(p,X0(p,:),'o'); hold off;  % Plot non-zero X0 coefficients
+title('Multiple Measurement Vector Basis Pursuit');
+
+%% Group sparsity
+% In the MMV formulation row-sparsity is encouraged by taking the
+% two-norm over the entries in each row. In the more general setting
+% sparsity may arise in groups that are known a priori but lack a
+% regular pattern. Given a vector g containing the group number
+% corresponding to each entry in x we can define the group two-norm
+%
+%   ||X||_g,1 := sum_i ||x(g == i)||_2,
+%
+% and use this to formulate the group-sparsity optimization problem:
+%
+%   minimize  ||x||_g,1  subject to  ||A*x - b||_2 <= sigma.
+%
+% We create an example with 30 groups and choose three of them to
+% contain non-zero random entries:
+
+nGroups = 30;
+groups  = sort(ceil(rand(n,1) * nGroups)); % Sort for display purpose
+p       = randperm(nGroups); p = p(1:3);
+idx     = ismember(groups,p);
+
+%%
+% Next we generate the group-sparse vector and use the A generated for
+% the MMV example to construct the observation vector b: 
+x0 = zeros(n,1); x0(idx) = randn(sum(idx),1);
+b  = A*x0;
+
+%%
+% The group-sparsity problem is then solved using spg_group as well as
+% using spg_bp
+
+opts = spgSetParms('verbosity',0);     % Turn off the SPGL1 log output
+x    = spg_group(A,b,groups,0,opts);   % Solve group-sparse BP
+xbp  = spg_bp(A,b,opts);               % Solve generic BP
+
+%%
+% Plotting the result shows how the BP solution differs from x0 and
+% the spg_group solution:
+
+plot(x0 ,'r*'); hold on
+stem(x  ,'b ');
+plot(xbp,'c.'); hold off
+ylim([-1.5,2.5]);
+legend('Original coefficients',...
+       'Recovered coefficients (Group sparse)',...
+       'Recovered coefficients (Basis Pursuit)');
+title('Group-Sparse Basis Pursuit');
+
+%% Reference
+% [BergFriedlander]  E. van den Berg and M. P. Friedlander, "Probing the
+% Pareto frontier for basis pursuit solutions", January 2008 (revised May
+% 2008). To appear in SIAM Journal on Scientific Computing.
+
+% $Id: spgextensions.m 1078 2008-08-20 06:34:55Z ewout78 $
+
+##### SOURCE END #####
+-->
+   </body>
+</html>

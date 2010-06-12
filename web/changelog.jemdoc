@@ -1,0 +1,38 @@
+# jemdoc: menu{MENU}{index.html},fwtitle
+= SGPL1: A solver for large-scale sparse reconstruction
+  Version 1.7, May 2009
+
+:{v1.7 release, 20 May 2009}
+- Fixed bug in MMV interface with implicit matrices. Thanks to
+  Muhammad Usman for reporting this bug.
+
+:{v1.6 release, 20 August 2008}
+- Added new fields to the options structure to specify functions for
+  the evaluation of the primal and dual norm, and for Euclidean
+  projection onto the associated primal norm ball.
+- Added simplified interface +spg_mmv.m+ for the multiple measurement
+  vector (MMV) version of BPDN, and +spg_group.m+ for group-sparse
+  BPDN.
+
+:{v1.5 release, 17 June 2008}
+- Added simplified interfaces for basis pursuit, basis pursuit
+  denoise, and LASSO problems.
+- Added html documentation.
+
+:{v1.4 release, 19 March 2008}
+- Fixed bug in orthogonal projection onto the weighted one-norm
+  ball. Thanks to Xiangrui Meng for reporting this bug.
+- Added demo for basis pursuit with weighted one-norm to +spgdemo.m+
+  Added check to +spgl1.m+ to ensure $\tau$ is not updated in two
+  consecutive iterations. Thanks to Gilles Hennenfent for reporting
+  this bug.
+- Added complexity check to projection code to ensure proper
+  projection.
+
+:{v1.3 release, 29 January 2008}
+- Changed stopping criterion for Lasso mode.
+- Added code that allows restriction of the maximum number of
+  matrix-vector operators (see +.maxMatvec+ option).
+- Added safeguard +max(0,...)+ to ensure positivity when updating
+  $\tau$. This is needed when $\sigma$ and the initial $\tau$ are both
+  large.

@@ -40,11 +40,11 @@ domain.  The theory underlying SPGL1 is described in these papers:
 - Probing the Pareto frontier for basis pursuit solutions E. van den
 Berg and M. P. Friedlander, SIAM J. on Scientific Computing,
 31(2):890-912, November 2008
-([http://www/~mpf/papers/BergFriedlander08.pdf pdf])
+([http://www.cs.ubc.ca/~mpf/papers/BergFriedlander08.pdf pdf])
 - Sparse optimization with least-squares constraints
 E. van den Berg and M. P. Friedlander, Tech. Rep. TR-2010-02, Dept of
 Computer Science, Univ of British Columbia, January 2010
-([http://www/~mpf/papers/vdBergFriedlander10.pdf pdf])
+([http://www.cs.ubc.ca/~mpf/papers/vdBergFriedlander10.pdf pdf])
 
 = Group sparsity
 

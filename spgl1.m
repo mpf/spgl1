@@ -562,8 +562,7 @@ while 1
        else            gStep = min( stepMax, max(stepMin, sts/sty) );
        end
        
-    catch % Detect matrix-vector multiply limit error
-       err = lasterror;
+    catch err % Detect matrix-vector multiply limit error
        if strcmp(err.identifier,'SPGL1:MaximumMatvec')
          stat = EXIT_MATVEC_LIMIT;
          iter = iter - 1;
@@ -837,8 +836,9 @@ while 1
     rNew     = b - Aprod(xNew,1);
     fNew     = rNew'*rNew / 2;
     s        = xNew - x;
-    gts      = scale * g' * s;
-    if gts >= 0 % Should we check real and complex parts individually?
+    gts      = scale * real(g' * s);
+%   gts      = scale * (g' * s);
+    if gts >= 0
        err = EXIT_NODESCENT;
        break
     end
@@ -849,7 +849,9 @@ while 1
     end
     
     % 03 Aug 07: If gts is complex, then should be looking at -abs(gts).
-    if fNew < fMax - gamma*step*abs(gts)  % Sufficient descent condition.
+    % 13 Jul 11: It's enough to use real part of g's (see above).
+    if fNew < fMax + gamma*step*gts
+%   if fNew < fMax - gamma*step*abs(gts)  % Sufficient descent condition.
        err = EXIT_CONVERGED;
        break
     elseif iter >= maxIts                 % Too many linesearch iterations.

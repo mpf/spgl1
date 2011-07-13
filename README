@@ -22,6 +22,9 @@ function) that return both both Ax and A'y.  SPGL1 can solve these
 three problems in both the real and complex domains.
 
 
+Home page: http://www.cs.ubc.ca/labs/scl/spgl1/
+
+
 2. Quick start
 ==============
 
@@ -83,10 +86,11 @@ command to your startup.m file.
 
 The algorithm implemented by SPGL1 is described in the paper
 
-E. van den Berg and M. P. Friedlander, "Probing the Pareto frontier
-for basis pursuit solutions", UBC Computer Science Technical Report
-TR-2008-01, January 2008.  Available at
-http://www.optimization-online.org/DB_FILE/2008/01/1889.pdf
+- E. van den Berg and M. P. Friedlander, "Probing the Pareto frontier
+  for basis pursuit solutions", SIAM J. on Scientific Computing,
+  31(2):890-912, November 2008
 
+- Sparse optimization with least-squares constraints E. van den Berg
+  and M. P. Friedlander, Tech. Rep. TR-2010-02, Dept of Computer
+  Science, Univ of British Columbia, January 2010
 
-$Id: README 769 2008-01-29 23:19:36Z mpf $

@@ -34,3 +34,6 @@ following command from within Matlab:
   >> spgdemo
 ~~~
 
+= Source code
+
+The source code is all maintained over at [https://github.com/mpf/spgl1 github.com\/mpf\/spgl].

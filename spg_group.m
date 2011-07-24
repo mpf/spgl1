@@ -34,6 +34,9 @@ function [x,r,g,info] = spg_group( A, b, groups, sigma, options )
 %
 %   See also spgl1, spgSetParms, spg_bp, spg_lasso.
 
+%   Thanks to Aswin Sankaranarayanan for pointing out performance
+%   issues with an earlier version of the group preprocessing code.
+
 %   Copyright 2008, Ewout van den Berg and Michael P. Friedlander
 %   http://www.cs.ubc.ca/labs/scl/spgl1
 %   $Id$
@@ -51,12 +54,10 @@ if ~exist('A','var') || isempty(A)
 end
 
 % Preprocess the groups, normalize numbering
-g     = groups(:);
-gidx  = unique(g);
-groups = sparse(length(gidx),length(g));
-for i=1:length(gidx)
-   groups(i,g == gidx(i)) = 1;
-end
+g = groups(:);
+n = length(g);
+[gidx,idx1,idx2] = unique(g);
+groups = sparse(idx2,1:n,ones(1,n),length(gidx),n);
 
 % Set projection specific functions
 options.project     = @(x,weight,tau) NormGroupL2_project(groups,x,weight,tau);

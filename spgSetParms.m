@@ -34,6 +34,7 @@ if nargin == 0 && nargout == 0
    fprintf('  iscomplex : [ 0=no, 1=yes, NaN=auto   |   NaN ]\n');
    fprintf('  maxMatvec : [ positive integer        |   Inf ]\n');
    fprintf('    weights : [ vector                  |     1 ]\n');
+   fprintf('     newton : [ step computation for tau|    @()]\n');
    fprintf('    project : [ projection function     |    @()]\n');
    fprintf('primal_norm : [ primal norm eval fun    |    @()]\n');
    fprintf('  dual_norm : [ dual norm eval fun      |    @()]\n');
@@ -58,6 +59,7 @@ Names = [
     'iscomplex         '
     'maxMatvec         '
     'weights           '
+    'newton            '
     'project           '
     'primal_norm       '
     'dual_norm         '

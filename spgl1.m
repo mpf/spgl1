@@ -177,12 +177,13 @@ defaultopts = spgSetParms(...
 'decTol'     ,  1e-04 , ... % Req'd rel. change in primal obj. for Newton
 'stepMin'    ,  1e-16 , ... % Minimum spectral step
 'stepMax'    ,  1e+05 , ... % Maximum spectral step
-'rootMethod' ,      2 , ... % Root finding method: 2=quad,1=linear (not used).
-'activeSetIt',    Inf , ... % Exit with EXIT_ACTIVE_SET if nnz same for # its.
+'rootMethod' ,      2 , ... % Root finding method: 2=quad,1=linear (not used)
+'activeSetIt',    Inf , ... % Exit with EXIT_ACTIVE_SET if nnz same for # its
 'subspaceMin',      0 , ... % Use subspace minimization
 'iscomplex'  ,    NaN , ... % Flag set to indicate complex problem
 'maxMatvec'  ,    Inf , ... % Maximum matrix-vector multiplies allowed
 'weights'    ,      1 , ... % Weights W in ||Wx||_1
+'newton'     ,      1 , ... % Newton (1) or secant (0) update to tau
 'project'    , @NormL1_project , ...
 'primal_norm', @NormL1_primal  , ...
 'dual_norm'  , @NormL1_dual      ...
@@ -217,6 +218,7 @@ nLineTot      = 0;                  % Total no. of linesearch steps.
 printTau      = false;
 nNewton       = 0;
 bNorm         = norm(b,2);
+rNormOld      = bNorm;              % Secant needs prev rNorm value.
 stat          = false;
 timeProject   = 0;
 timeMatProd   = 0;
@@ -322,10 +324,10 @@ else
 end    
     
 % Project the starting point and evaluate function and gradient.
-x         = project(x,tau);
-r         = b - Aprod(x,1);  % r = b - Ax
-g         =   - Aprod(r,2);  % g = -A'r
-f         = r'*r / 2; 
+x = project(x,tau);
+r = b - Aprod(x,1);  % r = b - Ax
+g =   - Aprod(r,2);  % g = -A'r
+f = r'*r / 2; 
 
 % Required for nonmonotone strategy.
 lastFv(1) = f;
@@ -410,9 +412,27 @@ while 1
                          ~stat && ~testUpdateTau;
        
        if testUpdateTau
-          % Update tau.
-          tauOld   = tau;
-          tau      = max(0,tau + (rNorm * aError1) / gNorm);
+           
+          if options.newton || tau == 0
+             tauOld = tau;
+             tau = tau + (rNorm * aError1) / gNorm;
+          else
+             % Lower bound in dual objective:
+             % fLow = b'y - tau lambda = (b'r - tau gNorm)/rNorm.
+             % rNormOld is the best objective value at the last update.
+             fLow = (b'*r - tau*gNorm) / rNorm;
+             fUpp = rNormOld;
+             slope = - (fUpp - fLow) / (tau - tauOld);
+             if slope > -eps
+                % relax. Don't update!
+             else
+                tauOld = tau;
+                tau = tau - (fLow - sigma) / slope;
+                rNormOld = rNorm;  % Keep this value for next secant.
+             end
+          end
+          
+          tau = max(0, tau); % Safeguard. (Seems unlikely!)
           nNewton  = nNewton + 1;
           printTau = abs(tauOld - tau) >= 1e-6 * tau; % For log only.
           if tau < tauOld

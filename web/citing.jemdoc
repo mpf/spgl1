@@ -7,7 +7,7 @@
 The description and theory of the SPGL1 algorithm is outlined in
 
 - E. van den Berg and M. P. Friedlander,
-  [http://www.cs.ubc.ca/~mpf/downloads/BergFriedlander08.pdf Probing
+  [http://www.cs.ubc.ca/~mpf/papers/08BergFriedlander.pdf Probing
   the Pareto frontier for basis pursuit solutions], SIAM J. on
   Scientific Computing, 31(2):890-912, November 2008
 - [http://www.cs.ubc.ca/~mpf/downloads/FriedlanderStanford07.pdf
@@ -20,10 +20,10 @@ When referencing SPGL1, please cite the following:
 @article{BergFriedlander:2008,
   Author = {E. van den Berg and M. P. Friedlander},
   Title = {Probing the Pareto frontier for basis pursuit solutions},
-  publisher = {SIAM},
   year = {2008},
   journal = {SIAM Journal on Scientific Computing},
-  volume = {31}, number = {2},
+  volume = {31},
+  number = {2},
   pages = {890-912},
   url = {http://link.aip.org/link/?SCE/31/890},
   doi = {10.1137/080714488}

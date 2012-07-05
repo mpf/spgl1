@@ -9,3 +9,15 @@ all : $(HDOCS)
 clean :
 	-rm -f *.html eqs/*
 
+update :
+	@echo -n 'Copying to server...'
+	rsync -av --delete-excluded \
+		--exclude="*~"         \
+		--exclude="Makefile"   \
+		--exclude="*.config"   \
+		--exclude="/*.jemdoc"  \
+		--exclude=".DS_Store"  \
+		--exclude="MENU"  \
+                . \
+                people.cs.ubc.ca:~mpf/public_html/spgl1
+	@echo ' done.'

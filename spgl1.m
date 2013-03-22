@@ -106,6 +106,9 @@ function [x,r,g,info] = spgl1( A, b, tau, sigma, x, options )
 % 23 Feb 08: Fixed bug in one-norm projection using weights. Thanks
 %            to Xiangrui Meng for reporting this bug.
 % 26 May 08: The simple call spgl1(A,b) now solves (BPDN) with sigma=0.
+% 18 Mar 13: Reset f = fOld if curvilinear line-search fails.
+%            Avoid computing the Barzilai-Borwein scaling parameter
+%            when both line-search algorithms failed.
     
 %   spgl1.m
 %   $Id: spgl1.m 1407 2009-06-30 20:00:54Z ewout78 $
@@ -472,15 +475,18 @@ while 1
            spgLineCurvy(x,gStep*g,max(lastFv),@Aprod,b,@project,tau);
        nLineTot = nLineTot + nLine;
        if lnErr
-          %  Projected backtrack failed. Retry with feasible dir'n linesearch.
+          % Projected backtrack failed. Retry with feasible dir'n linesearch.
           x    = xOld;
+          f    = fOld;
           dx   = project(x - gStep*g, tau) - x;
           gtd  = g'*dx;
           [f,x,r,nLine,lnErr] = spgLine(f,x,dx,gtd,max(lastFv),@Aprod,b);
           nLineTot = nLineTot + nLine;
        end
        if lnErr
-       %  Failed again.  Revert to previous iterates and damp max BB step.
+          % Failed again. Revert to previous iterates and damp max BB step.
+          x = xOld;
+          f = fOld;
           if maxLineErrors <= 0
              stat = EXIT_LINE_ERROR;
           else
@@ -553,13 +559,17 @@ while 1
        %---------------------------------------------------------------
        % Update gradient and compute new Barzilai-Borwein scaling.
        %---------------------------------------------------------------
-       g    = - Aprod(r,2);
-       s    = x - xOld;
-       y    = g - gOld;
-       sts  = s'*s;
-       sty  = s'*y;
-       if   sty <= 0,  gStep = stepMax;
-       else            gStep = min( stepMax, max(stepMin, sts/sty) );
+       if (~lnErr)
+          g    = - Aprod(r,2);
+          s    = x - xOld;
+          y    = g - gOld;
+          sts  = s'*s;
+          sty  = s'*y;
+          if   sty <= 0,  gStep = stepMax;
+          else            gStep = min( stepMax, max(stepMin, sts/sty) );
+          end
+       else
+          gStep = min( stepMax, gStep );
        end
        
     catch err % Detect matrix-vector multiply limit error

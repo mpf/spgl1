@@ -2,6 +2,9 @@
 = SGPL1: A solver for large-scale sparse reconstruction
   Version 1.7, May 2009
 
+:{v1.8 release, 25 May 2013}
+- Fixed linesearch bug.
+
 :{v1.7 release, 20 May 2009}
 - Fixed bug in MMV interface with implicit matrices. Thanks to
   Muhammad Usman for reporting this bug.

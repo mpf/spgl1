@@ -110,9 +110,6 @@ function [x,r,g,info] = spgl1( A, b, tau, sigma, x, options )
 %            Avoid computing the Barzilai-Borwein scaling parameter
 %            when both line-search algorithms failed.
     
-%   spgl1.m
-%   $Id: spgl1.m 1407 2009-06-30 20:00:54Z ewout78 $
-%
 %   ----------------------------------------------------------------------
 %   This file is part of SPGL1 (Spectral Projected-Gradient for L1).
 %

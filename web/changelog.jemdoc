@@ -1,6 +1,5 @@
 # jemdoc: menu{MENU}{index.html},fwtitle
-= SGPL1: A solver for large-scale sparse reconstruction
-  Version 1.7, May 2009
+= SPGL1: A solver for large-scale sparse reconstruction
 
 :{v1.8 release, 25 May 2013}
 - Fixed linesearch bug.

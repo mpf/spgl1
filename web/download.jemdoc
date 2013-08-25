@@ -1,10 +1,10 @@
 # jemdoc: menu{MENU}{download.html},fwtitle
-= SGPL1: A solver for large-scale sparse reconstruction
+= SPGL1: A solver for large-scale sparse reconstruction
 
 = Download
 
 Download the distribution file:
-- spgl1-1.8 ([http://www.cs.ubc.ca/~mpf/downloads/spgl1-1.8.zip zip]) ([http://www.cs.ubc.ca/~mpf/downloads/spgl1-1.9.tgz tgz])
+- spgl1-1.8 ([downloads/spgl1-1.8.zip zip]) ([downloads/spgl1-1.8.tgz tgz])
 
 = Installation
 

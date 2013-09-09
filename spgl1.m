@@ -109,6 +109,8 @@ function [x,r,g,info] = spgl1( A, b, tau, sigma, x, options )
 % 18 Mar 13: Reset f = fOld if curvilinear line-search fails.
 %            Avoid computing the Barzilai-Borwein scaling parameter
 %            when both line-search algorithms failed.
+% 09 Sep 13: Recompute function information at new x when tau decreases.
+%            Fixed bug in subspace minimization.
     
 %   ----------------------------------------------------------------------
 %   This file is part of SPGL1 (Spectral Projected-Gradient for L1).
@@ -541,7 +543,7 @@ while 1
           if istop ~= 4  % LSQR iterations successful. Take the subspace step.
              % Push dx back into full space:  dx = Z dx.
              dx = zeros(n,1);
-             dx(nnzIdx) = dxbar - (1/nebar)*(ebar'*dxbar)*dxbar;
+             dx(nnzIdx) = dxbar - (1/nebar)*(ebar'*dxbar)*ebar;
 
              % Find largest step to a change in sign.
              block1 = nnzIdx  &  x < 0  &  dx > +pivTol;

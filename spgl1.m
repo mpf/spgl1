@@ -110,7 +110,8 @@ function [x,r,g,info] = spgl1( A, b, tau, sigma, x, options )
 %            Avoid computing the Barzilai-Borwein scaling parameter
 %            when both line-search algorithms failed.
 % 09 Sep 13: Recompute function information at new x when tau decreases.
-%            Fixed bug in subspace minimization.
+%            Fixed bug in subspace minimization. Thanks to Yang Lei
+%            for reporting this bug.
     
 %   ----------------------------------------------------------------------
 %   This file is part of SPGL1 (Spectral Projected-Gradient for L1).

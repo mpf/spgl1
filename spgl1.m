@@ -419,6 +419,15 @@ while 1
              % The one-norm ball has decreased.  Need to make sure that the
              % next iterate if feasible, which we do by projecting it.
              x = project(x,tau);
+             
+             % Update the residual, gradient, and function value.
+             r = b - Aprod(x,1);  % r = b - Ax
+             g =   - Aprod(r,2);  % g = -A'r
+             f = r'*r / 2;
+             
+             % Reset the function value history.
+             lastFv = -inf(nPrevVals,1);  % Last m function values.
+             lastFv(1) = f;
           end
        end
     end
@@ -475,6 +484,7 @@ while 1
           % Projected backtrack failed. Retry with feasible dir'n linesearch.
           x    = xOld;
           f    = fOld;
+          r    = rOld;
           dx   = project(x - gStep*g, tau) - x;
           gtd  = g'*dx;
           [f,x,r,nLine,lnErr] = spgLine(f,x,dx,gtd,max(lastFv),@Aprod,b);

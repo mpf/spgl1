@@ -11,7 +11,7 @@ squares. It is designed to solve any of the following three problems:
 {basis pursuit denoise}
 \(
   \hbox{minimize} \quad \|x\|_1
-  \quad\hbox{subect to}\quad
+  \quad\hbox{subject to}\quad
   \|Ax-b\|_2 \le \sigma
 \)
 ~~~
@@ -20,7 +20,7 @@ squares. It is designed to solve any of the following three problems:
 {basis pursuit}
 \(
   \hbox{minimize} \quad \|x\|_1
-  \quad\hbox{subect to}\quad
+  \quad\hbox{subject to}\quad
   Ax=b
 \)
 ~~~
@@ -29,7 +29,7 @@ squares. It is designed to solve any of the following three problems:
 {Lasso}
 \(
   \hbox{minimize} \quad \|Ax-b\|_2
-  \quad\hbox{subect to}\quad
+  \quad\hbox{subject to}\quad
   \|x\| \le \tau
 \)
 ~~~

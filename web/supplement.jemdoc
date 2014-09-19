@@ -1,5 +1,6 @@
 # jemdoc: menu{MENU}{index.html},fwtitle
-= SPGL1: A solver for large-scale sparse reconstruction
+= SGPL1: A solver for large-scale sparse reconstruction
+  Version 1.8, May 2013
 
 = Supplement to ``Probing the Pareto frontier for basis pursuit solutions''
 

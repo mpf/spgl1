@@ -128,10 +128,8 @@ function [x,r,g,info] = spgl1( A, b, tau, sigma, x, options )
 %   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
 %   USA
 %   ----------------------------------------------------------------------
-REVISION = '$Revision: 1017 $';
-DATE     = '$Date: 2008-06-16 22:43:07 -0700 (Mon, 16 Jun 2008) $';
-REVISION = REVISION(11:end-1);
-DATE     = DATE(35:50);
+REVISION = '1.8';
+DATE     = '23 May 2013';
 
 tic;              % Start your watches!
 m = length(b);

@@ -1,9 +1,18 @@
 ------------------------------------------------------------------------
+Version 1.9
+------------------------------------------------------------------------
+
+2015-04-29 Michael P. Friedlander <mpfriedlander@ucdavis.edu>
+	* spgl1.m: Recompute function information at new x when tau decreases.
+                   Fixed bug in subspace minimization.
+                   Thanks to Yang Lei for reporting this bug.
+
+------------------------------------------------------------------------
 Version 1.8
 ------------------------------------------------------------------------
 
 2013-05-25  Ewout van den Berg <vandenberge.ewout@gmail.com>
-	* spg_mmv.m: Fixed linesearch bug.
+	* spgl1.m: Fixed linesearch bug.
 	
 ------------------------------------------------------------------------
 Version 1.7

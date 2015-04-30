@@ -1,6 +1,6 @@
 # jemdoc: menu{MENU}{index.html},fwtitle
 = SPGL1: A solver for large-scale sparse reconstruction
-  Version 1.8, May 2013
+  Version 1.9, April 2015
 
 SPGL1 is a Matlab solver for large-scale one-norm regularized least
 squares. It is designed to solve any of the following three problems:

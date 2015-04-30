@@ -1,6 +1,11 @@
 # jemdoc: menu{MENU}{index.html},fwtitle
 = SPGL1: A solver for large-scale sparse reconstruction
 
+:{v1.9 release, 29 Apr 2015}
+- Recompute function information at new x when tau decreases.
+- Fixed bug in subspace minimization.
+  Thanks to Yang Lei for reporting this bug.
+
 :{v1.8 release, 25 May 2013}
 - Fixed linesearch bug.
 

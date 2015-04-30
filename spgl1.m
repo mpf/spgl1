@@ -78,20 +78,16 @@ function [x,r,g,info] = spgl1( A, b, tau, sigma, x, options )
 %
 % AUTHORS
 % =======
-%  Ewout van den Berg (ewout78@cs.ubc.ca)
-%  Michael P. Friedlander (mpf@cs.ubc.ca)
-%    Scientific Computing Laboratory (SCL)
-%    University of British Columbia, Canada.
+%  Ewout van den Berg (vandenberg.ewout@gmail.com)
+%  Michael P. Friedlander (mpf@math.ucdavis.edu)
 %
 % BUGS
 % ====
 % Please send bug reports or comments to
-%            Michael P. Friedlander (mpf@cs.ubc.ca)
-%            Ewout van den Berg (ewout78@cs.ubc.ca)
+%            Michael P. Friedlander (mpf@math.ucdavis.edu)
+%            Ewout van den Berg (vandenberg.ewout@gmail.com)
 
 % 15 Apr 07: First version derived from spg.m.
-%            Michael P. Friedlander (mpf@cs.ubc.ca).
-%            Ewout van den Berg (ewout78@cs.ubc.ca).
 % 17 Apr 07: Added root-finding code.
 % 18 Apr 07: sigma was being compared to 1/2 r'r, rather than
 %            norm(r), as advertised.  Now immediately change sigma to
@@ -833,7 +829,7 @@ n      =  length(x);
 
 if debug
    fprintf(' %5s  %13s  %13s  %13s  %8s\n',...
-           'LSits','fNew','step','gts','scale');  
+           'LSits','fNew','step','gts','scale');   %#ok<UNRCH>
 end
    
 while 1
@@ -852,7 +848,7 @@ while 1
 
     if debug
        fprintf(' LS %2i  %13.7e  %13.7e  %13.6e  %8.1e\n',...
-               iter,fNew,step,gts,scale);
+               iter,fNew,step,gts,scale);   %#ok<UNRCH>
     end
     
     % 03 Aug 07: If gts is complex, then should be looking at -abs(gts).

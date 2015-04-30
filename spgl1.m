@@ -131,8 +131,8 @@ function [x,r,g,info] = spgl1( A, b, tau, sigma, x, options )
 %   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
 %   USA
 %   ----------------------------------------------------------------------
-REVISION = '1.8';
-DATE     = '23 May 2013';
+REVISION = '1.9';
+DATE     = '29 Apr 2015';
 
 tic;              % Start your watches!
 m = length(b);

@@ -19,5 +19,5 @@ update :
 		--exclude=".DS_Store"  \
 		--exclude="MENU"  \
                 . \
-                round.math.ucdavis.edu:~mpf/public_html/spgl1
+                people.cs.ubc.ca:~mpf/public_html/spgl1
 	@echo ' done.'

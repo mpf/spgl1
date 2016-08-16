@@ -138,6 +138,17 @@ tic;              % Start your watches!
 m = length(b);
 
 %----------------------------------------------------------------------
+% Profiling variables used in private functions
+% Octave does not support nested functions
+%----------------------------------------------------------------------
+
+global nProdA
+global nProdAt
+global maxMatvec
+global timeMatProd
+global timeProject
+
+%----------------------------------------------------------------------
 % Check arguments. 
 %----------------------------------------------------------------------
 if ~exist('options','var'), options = []; end
@@ -205,6 +216,17 @@ maxLineErrors = 10;     % Maximum number of line-search failures.
 pivTol        = 1e-12;  % Threshold for significant Newton step.
 
 %----------------------------------------------------------------------
+% Wrap matrix product and projections
+% Octave does not support nested functions
+%----------------------------------------------------------------------
+
+f = @(A, x, mode) ( @(x, mode) AFun(x, A, mode) );
+Aprod = f(A);
+
+g = @(P, weights, x, tau) ( @(x, tau) PFun(P, x, weights, tau) );
+project = g(options.project, weights);
+
+%----------------------------------------------------------------------
 % Initialize local variables.
 %----------------------------------------------------------------------
 iter          = 0;  itnTotLSQR = 0; % Total SPGL1 and LSQR iterations.
@@ -224,7 +246,6 @@ stepG         = 1;                  % Step length for projected gradient.
 testUpdateTau = 0;                  % Previous step did not update tau
 
 % Determine initial x, vector length n, and see if problem is complex
-explicit = ~(isa(A,'function_handle'));
 if isempty(x)
    if isnumeric(A)
       n = size(A,2);
@@ -354,7 +375,7 @@ while 1
     gap     = r'*(r-b) + tau*gNorm;
     rGap    = abs(gap) / max(1,f);
     aError1 = rNorm - sigma;
-    aError2 = f - sigma^2 / 2;
+    aError2 = f - sigma.^2 / 2;
     rError1 = abs(aError1) / max(1,rNorm);
     rError2 = abs(aError2) / max(1,f);
 
@@ -475,7 +496,7 @@ while 1
        % Projected gradient step and linesearch.
        %---------------------------------------------------------------
        [f,x,r,nLine,stepG,lnErr] = ...
-           spgLineCurvy(x,gStep*g,max(lastFv),@Aprod,b,@project,tau);
+           spgLineCurvy(x,gStep*g,max(lastFv),Aprod,b,project,tau);
        nLineTot = nLineTot + nLine;
        if lnErr
           % Projected backtrack failed. Retry with feasible dir'n linesearch.
@@ -484,7 +505,7 @@ while 1
           r    = rOld;
           dx   = project(x - gStep*g, tau) - x;
           gtd  = g'*dx;
-          [f,x,r,nLine,lnErr] = spgLine(f,x,dx,gtd,max(lastFv),@Aprod,b);
+          [f,x,r,nLine,lnErr] = spgLine(f,x,dx,gtd,max(lastFv),Aprod,b);
           nLineTot = nLineTot + nLine;
        end
        if lnErr
@@ -528,7 +549,7 @@ while 1
        
           ebar   = sign(x(nnzIdx));
           nebar  = length(ebar);
-          Sprod  = @(y,mode)LSQRprod(@Aprod,nnzIdx,ebar,n,y,mode);
+          Sprod  = @(y,mode)LSQRprod(Aprod,nnzIdx,ebar,n,y,mode);
        
           [dxbar, istop, itnLSQR] = ...
              lsqr(m,nebar,Sprod,r,damp,aTol,bTol,conLim,itnMaxLSQR,showLSQR);
@@ -671,13 +692,38 @@ printf('\n');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % NESTED FUNCTIONS.  These share some vars with workspace above.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-function z = Aprod(x,mode)
+
+function printf(varargin)
+  if logLevel > 0
+     fprintf(fid,varargin{:});
+  end
+end % function printf
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% End of nested functions.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+end % function spg
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PRIVATE FUNCTIONS.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function z = AFun(x,A,mode)
+
+   global nProdA
+   global nProdAt
+   global maxMatvec
+   global timeMatProd
+
    if (nProdA + nProdAt >= maxMatvec)
      error('SPGL1:MaximumMatvec','');
    end
-     
+
+   explicit = ~(isa(A,'function_handle'));
+
    tStart = toc;
+
    if mode == 1
       nProdA = nProdA + 1;
       if   explicit, z = A*x;
@@ -691,36 +737,22 @@ function z = Aprod(x,mode)
    else
       error('Wrong mode!');
    end
+
    timeMatProd = timeMatProd + (toc - tStart);
-end % function Aprod
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+end % function AFun
 
-function printf(varargin)
-  if logLevel > 0
-     fprintf(fid,varargin{:});
-  end
-end % function printf
+function x = PFun(P, x, weights, tau)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   global timeProject
 
-function x = project(x, tau)
-   tStart      = toc;
+   tStart = toc;
 
-   x = options.project(x,weights,tau);
-   
+   x = P(x, weights, tau);
+
    timeProject = timeProject + (toc - tStart);
-end % function project
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% End of nested functions.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-end % function spg
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% PRIVATE FUNCTIONS.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+end % function PFun
 
 function [nnzX,nnzG,nnzIdx,nnzDiff] = activeVars(x,g,nnzIdx,options)
 % Find the current active set.

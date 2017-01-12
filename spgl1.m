@@ -134,7 +134,7 @@ function [x,r,g,info] = spgl1( A, b, tau, sigma, x, options )
 REVISION = '1.9';
 DATE     = '29 Apr 2015';
 
-tic;              % Start your watches!
+spgl1TimeVal = tic();              % Start your watches!
 m = length(b);
 
 %----------------------------------------------------------------------
@@ -627,7 +627,7 @@ info.timeProject = timeProject;
 info.timeMatProd = timeMatProd;
 info.itnLSQR     = itnTotLSQR;
 info.options     = options;
-info.timeTotal   = toc;
+info.timeTotal   = toc(spgl1TimeVal);
 
 info.xNorm1      = xNorm1(1:iter);
 info.rNorm2      = rNorm2(1:iter);
@@ -677,7 +677,7 @@ function z = Aprod(x,mode)
      error('SPGL1:MaximumMatvec','');
    end
      
-   tStart = toc;
+   tStart = toc(spgl1TimeVal);
    if mode == 1
       nProdA = nProdA + 1;
       if   explicit, z = A*x;
@@ -691,7 +691,7 @@ function z = Aprod(x,mode)
    else
       error('Wrong mode!');
    end
-   timeMatProd = timeMatProd + (toc - tStart);
+   timeMatProd = timeMatProd + (toc(spgl1TimeVal) - tStart);
 end % function Aprod
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -705,11 +705,11 @@ end % function printf
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function x = project(x, tau)
-   tStart      = toc;
+   tStart      = toc(spgl1TimeVal);
 
    x = options.project(x,weights,tau);
    
-   timeProject = timeProject + (toc - tStart);
+   timeProject = timeProject + (toc(spgl1TimeVal) - tStart);
 end % function project
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

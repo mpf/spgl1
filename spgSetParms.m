@@ -15,79 +15,78 @@ function options = spgSetParms(varargin)
 %   spgSetParms.m
 %   $Id: spgSetParms.m 1407 2009-06-30 20:00:54Z ewout78 $
 
+parameters = {{'fid',         'positive integer',          '1'    }, ...
+              {'verbosity',   'integer: 1, 2, or 3',       '2'    }, ...
+              {'history',     'false=no, true=yes',        'false'}, ...
+              {'iterations',  'positive integer',          'Inf'  }, ...
+              {'nPrevVals',   'positive integer',          '3'   }, ...
+              {'bpTol',       'positive scalar',           '1e-06'}, ...
+              {'lsTol',       'positive scalar',           '1e-06'}, ...
+              {'optTol',      'positive scalar',           '1e-04'}, ...
+              {'decTol',      'positive scalar',           '1e-04'}, ...
+              {'relgapMinF',  'positive scalar',           '1'    }, ...
+              {'relgapMinR',  'positive scalar',           '1'    }, ...
+              {'rootfindMode','0 = primal, 1 = dual',      '0'    }, ...
+              {'rootfindTol', 'scalar',                    '0.5'  }, ...
+              {'stepMin',     'positive scalar',           '1e-16'}, ...
+              {'stepMax',     'positive scalar',           '1e+05'}, ...
+              {'iscomplex',   '0=no, 1=yes, NaN=auto',     'NaN'  }, ...
+              {'maxMatvec',   'positive integer',          'Inf'  }, ...
+              {'mu',          'nonnegative scalar',        '0'    }, ...
+              {'weights',     'vector or scalar',          '1'    }, ...
+              {'project',     'projection function',       '@NormL1_project'}, ...
+              {'primal_norm', 'primal norm eval fun',      '@NormL1_primal'}, ...
+              {'dual_norm',   'dual norm eval fun',        '@NormL1_dual'}, ...
+              {'hybridMode',  'false=no, true=yes',        'false'}, ...
+              {'lbfgsHist',   'positive integer',          '8'    }, ...
+              };
+             
+
 % Print out possible values of properties.
 if nargin == 0 && nargout == 0
-   fprintf(' Default parameters for l1Set.m:\n');
-   fprintf('        fid : [ positive integer        |     1 ]\n');
-   fprintf('  verbosity : [ integer: 1, 2, or 3     |     3 ]\n');
-   fprintf(' iterations : [ positive integer        |  10*m ]\n');
-   fprintf('  nPrevVals : [ positive integer        |    10 ]\n');
-   fprintf('      bpTol : [ positive scalar         | 1e-06 ]\n');
-   fprintf('      lsTol : [ positive scalar         | 1e-06 ]\n');
-   fprintf('     optTol : [ positive scalar         | 1e-04 ]\n');
-   fprintf('     decTol : [ positive scalar         | 1e-04 ]\n');   
-   fprintf('    stepMin : [ positive scalar         | 1e-16 ]\n');
-   fprintf('    stepMax : [ positive scalar         | 1e+05 ]\n');
-   fprintf(' rootMethod : [ 1=linear, 2=quadratic   |     2 ]\n');
-   fprintf('activeSetIt : [ positive integer        |   Inf ]\n');
-   fprintf('subspaceMin : [ 0=no, 1=yes             |     0 ]\n');
-   fprintf('  iscomplex : [ 0=no, 1=yes, NaN=auto   |   NaN ]\n');
-   fprintf('  maxMatvec : [ positive integer        |   Inf ]\n');
-   fprintf('    weights : [ vector                  |     1 ]\n');
-   fprintf('    project : [ projection function     |    @()]\n');
-   fprintf('primal_norm : [ primal norm eval fun    |    @()]\n');
-   fprintf('  dual_norm : [ dual norm eval fun      |    @()]\n');
+   fprintf(' Default parameters for spgSetParams.m:\n');
+   w1 = 0; w2 = 0; w3 = 0;
+   for i = 1:length(parameters)
+      w1 = max(w1, length(parameters{i}{1}));
+      w2 = max(w2, length(parameters{i}{2}));
+      w3 = max(w3, length(parameters{i}{3}));
+   end
+   for i = 1:length(parameters)
+      fprintf('%*s : %*s | %*s\n', w1, parameters{i}{1}, ...
+                                  -w2, parameters{i}{2}, ...
+                                   w3, parameters{i}{3});
+   end
    fprintf('\n');
    return;
 end
 
-Names = [
-    'fid               '
-    'verbosity         '
-    'iterations        '
-    'nPrevVals         '
-    'bpTol             '
-    'lsTol             '
-    'optTol            '
-    'decTol            '
-    'stepMin           '
-    'stepMax           '
-    'rootMethod        '
-    'activeSetIt       '
-    'subspaceMin       '
-    'iscomplex         '
-    'maxMatvec         '
-    'weights           '
-    'project           '
-    'primal_norm       '
-    'dual_norm         '
-	];
-[m,n] = size(Names);
-names = lower(Names);
+m = length(parameters);
+Names = cell(m,1);
+names = cell(m,1);
+for i = 1:m
+   Names{i} = parameters{i}{1};
+   names{i} = lower(Names{i});
+end
 
 % Combine all leading options structures o1, o2, ... in l1Set(o1,o2,...).
 options = [];
 for j = 1:m
-   eval(['options.' Names(j,:) '= [];']);
+   options.(parameters{j}{1}) = eval(parameters{j}{3});
 end
 i = 1;
 while i <= nargin
    arg = varargin{i};
    if ischar(arg), break; end
    if ~isempty(arg)                      % [] is a valid options argument
-       if ~isa(arg,'struct')
+      if ~isa(arg,'struct')
           error(sprintf(['Expected argument %d to be a string parameter name ' ...
                'or an options structure\ncreated with OPTIMSET.'], i));
       end
       for j = 1:m
-          if any(strcmp(fieldnames(arg),deblank(Names(j,:))))
-             eval(['val = arg.' Names(j,:) ';']);
-          else
-             val = [];
+          if any(strcmp(fieldnames(arg),Names{j}))
+             val = arg.(Names{j});
+             options.(Names{j}) = val;
           end
-          if ~isempty(val)
-             eval(['options.' Names(j,:) '= val;']);
-         end
       end
    end
    i = i + 1;
@@ -117,9 +116,9 @@ while i <= nargin
             j = k;
          else
             msg = sprintf('Ambiguous parameter name ''%s'' ', arg);
-            msg = [msg '(' deblank(Names(j(1),:))];
+            msg = [msg '(' Names{j(1)}];
             for k = j(2:length(j))'
-               msg = [msg ', ' deblank(Names(k,:))];
+               msg = [msg ', ' Names{k}];
             end
             msg = sprintf('%s).', msg);
             error(msg);
@@ -128,7 +127,7 @@ while i <= nargin
       expectval = 1;                      % we expect a value next
       
    else
-      eval(['options.' Names(j,:) '= arg;']);
+      options.(Names{j}) = arg;
       expectval = 0;
       
    end

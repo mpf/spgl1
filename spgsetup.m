@@ -38,4 +38,14 @@ catch
     fprintf('You can still use the slower ".m" version.');
     rethrow(lasterr);
 end
-    
+
+try
+    cd('private')
+    mex productBMex.c -DNDEBUG
+    fprintf('Successfully compiled productB.\n');
+    cd(root)
+catch
+    cd(root)
+    fprintf('Could not compile productB.');
+    rethrow(lasterr);
+end

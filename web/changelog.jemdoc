@@ -1,9 +1,6 @@
 # jemdoc: menu{MENU}{index.html},fwtitle
 = SPGL1: A solver for large-scale sparse reconstruction
 
-:{v2.0-beta release, 08 Jun 2018}
-- A small change to the algorithm now allows for higher-accuracy solves. Use the option +rootfindMode=1+ to enable. The default mode uses the same method as release v1.9.
-	
 :{v1.9 release, 29 Apr 2015}
 - Recompute function information at new x when tau decreases.
 - Fixed bug in subspace minimization.

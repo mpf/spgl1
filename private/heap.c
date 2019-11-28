@@ -103,6 +103,40 @@ void heap_sift_2( int root, int lastChild, double x[], double y[] )
 }
 
 
+
+/*
+  \brief Perform the "sift" operation for the heap-sort algorithm.
+
+  A heap is a collection of items arranged in a binary tree.  Each
+  child node is smaller than or equal to its parent.  If x[k] is the
+  parent, than its children are x[2k+1] and x[2k+2].
+
+  This routine promotes ("sifts up") children that are larger than
+  their parents.  Thus, the largest element of the heap is the root node.
+
+  \param[in]     root       The root index from which to start sifting.
+  \param[in]     lastChild  The last child (largest node index) in the sift operation.
+  \param[in,out] ptr        The array to be sifted.
+  \param[in]     fun        Function for comparing elements.
+*/
+void heap_sift_ptr( int root, int lastChild, void *ptr[], compare_ptr fun)
+{  int child;
+
+   for (; (child = (root * 2) + 1) <= lastChild; root = child)
+   {
+      if (child < lastChild)
+	      if ( fun(ptr[child], ptr[child+1]) == -1 ) /* Less than */
+		      child++;
+	
+	   if ( fun(ptr[child], ptr[root]) <= 0 ) /* Less than or equal to */
+	      break;
+
+	   swap_ptr(  ptr[root],  ptr[child] );
+   }
+}
+
+
+
 /*!
   \brief Discard the largest element and contract the heap.
 
@@ -176,6 +210,41 @@ int heap_del_max_2( int numElems, double x[], double y[] )
 
 
 /*!
+  \brief Discard the largest element and contract the heap.
+
+  On entry, the numElems of the heap are stored in x[0],...,x[numElems-1],
+  and the biggest element is x[0].  The following operations are performed:
+    -# Swap the first and last elements of the heap
+    -# Shorten the length of the heap by one.
+    -# Restore the heap property to the contracted heap.
+       This effectively makes x[0] the next largest element
+       in the list.
+
+  \param[in]     numElems   The number of elements in the current heap.
+  \param[in,out] x          The array to be modified.
+
+  \return  The number of elements in the heap after it has been contracted.
+*/
+int heap_del_max_ptr(int numElems, void *ptr[], compare_ptr fun )
+{
+    int lastChild = numElems - 1;
+
+    assert(numElems > 0);
+
+    /* Swap the largest element with the lastChild. */
+    swap_ptr(ptr[0], ptr[lastChild]);
+
+    /* Contract the heap size, thereby discarding the largest element. */
+    lastChild--;
+    
+    /* Restore the heap property of the contracted heap. */
+    heap_sift_ptr(0, lastChild, ptr, fun);
+
+    return numElems - 1;
+}
+
+
+/*!
   
   \brief  Build a heap by adding one element at a time.
   
@@ -205,4 +274,22 @@ void heap_build_2( int n, double x[], double y[] )
     int i;
 
     for (i = n/2; i >= 0; i--) heap_sift_2( i, n-1, x, y );
+}
+
+
+
+
+/*!
+  
+  \brief  Build a heap by adding one element at a time.
+  
+  \param[in]      n   The length of x and ix.
+  \param[in,out]  x   The array to be heapified.
+
+*/
+void heap_build_ptr( int n, void *ptr[], compare_ptr fun )
+{    
+    int i;
+
+    for (i = n/2; i >= 0; i--) heap_sift_ptr( i, n-1, ptr, fun );
 }

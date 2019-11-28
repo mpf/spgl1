@@ -93,7 +93,7 @@ group-sparse BPDN problem is
 We would be delighted to hear from you if you find SPGL1 useful, or if
 you have any suggestions, contributions, or bug reports. Please send
 these to
-- Michael P. Friedlander ([mailto:mpf@cs.ubc.ca mpf@cs.ubc.ca])
+- Michael P. Friedlander ([mailto:mpfriedlander@ucdavis.edu mpfriedlander@ucdavis.edu])
 - Ewout van den Berg ([mailto:vandenberg.ewout@gmail.com vandenberg.ewout@gmail.com])
 
 = License
@@ -102,5 +102,7 @@ SPGL1 is distributed under the GNU Public License.
 
 = Credits
 
-This research is supported in part by an NSERC Discovery Grant and by a grant for the Office of Naval Research (N00014-17-1-2009).
+This research is supported in part by an NSERC Discovery Grant and by
+an NSERC Collaborative Research and Development Grant (334810-05) that
+funds the DNOISE project.
 

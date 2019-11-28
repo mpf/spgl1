@@ -37,8 +37,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
    mxArray       *vectorX;
    mxArray       *vectorDcopy;
    int           *ptr;
-   int            i, n;
+   int            n;
    unsigned int   dims[2];
+   double         lambda; /* Soft-thresholding parameter */
    
 
    /* Free memory and exit if no parameters are given */
@@ -105,11 +106,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     /* Call the appropriate projection subroutine */
     if (vectorD == NULL)
-    {  i = projectI(mxGetPr(vectorX), mxGetPr(vectorB), *mxGetPr(tau), n); 
+    {  lambda = projectI(mxGetPr(vectorX), mxGetPr(vectorB), *mxGetPr(tau), n); 
     }
     else
     {  vectorDcopy = mxDuplicateArray(vectorD);
-       i = projectD(mxGetPr(vectorX),      mxGetPr(vectorB),
+       lambda = projectD(mxGetPr(vectorX),      mxGetPr(vectorB),
                     mxGetPr(vectorDcopy),  mxGetPr(vectorD),
                     *mxGetPr(tau), n);
        mxDestroyArray(vectorDcopy);
@@ -117,7 +118,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     /* Return the number of iterations for projection */
     if (nlhs > 1)
-    {  plhs[1] = mxCreateDoubleScalar((double)i);
+    {  plhs[1] = mxCreateDoubleScalar((double)lambda);
     }
 
     return ;

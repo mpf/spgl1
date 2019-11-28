@@ -1,7 +1,8 @@
-function [x,r,g,info] = spgl1( A, b, tau, sigma, x, options )
+function [x,r,g,info] = spgl1( A, b, tau, sigma, x, varargin )
 %SPGL1  Solve basis pursuit, basis pursuit denoise, and LASSO
 %
 % [x, r, g, info] = spgl1(A, b, tau, sigma, x0, options)
+% [x, r, g, info] = spgl1(A, b, tau [, sigma, x0] [,options])
 %
 % ---------------------------------------------------------------------
 % Solve the basis pursuit denoise (BPDN) problem
@@ -13,7 +14,9 @@ function [x,r,g,info] = spgl1( A, b, tau, sigma, x, options )
 % (LASSO)  minimize  ||Ax-b||_2  subj to  ||x||_1 <= tau.
 %
 % Setting the optional parameter mu uses updated A and b:
-% A = [A; sqrt(\mu)I] and b = [b; 0].
+%
+% A = [A        ] and b = [b]
+%     [sqrt(mu)I] and     [0].
 % ---------------------------------------------------------------------
 %
 % INPUTS
@@ -82,12 +85,12 @@ function [x,r,g,info] = spgl1( A, b, tau, sigma, x, options )
 % AUTHORS
 % =======
 %  Ewout van den Berg (vandenberg.ewout@gmail.com)
-%  Michael P. Friedlander (mpf@math.ucdavis.edu)
+%  Michael P. Friedlander (mpf@cs.ubc.ca)
 %
 % BUGS
 % ====
 % Please send bug reports or comments to
-%            Michael P. Friedlander (mpf@math.ucdavis.edu)
+%            Michael P. Friedlander (mpf@cs.ubc.ca)
 %            Ewout van den Berg (vandenberg.ewout@gmail.com)
 
 % 15 Apr 07: First version derived from spg.m.
@@ -112,11 +115,6 @@ function [x,r,g,info] = spgl1( A, b, tau, sigma, x, options )
 %            Fixed bug in subspace minimization. Thanks to Yang Lei
 %            for reporting this bug.
 
-% Version 2
-% - history flag (false by default)
-% - c, mu
-% - Keep track of the best dual value
-% - Keep track of the best tau'
 
 %   ----------------------------------------------------------------------
 %   This file is part of SPGL1 (Spectral Projected-Gradient for L1).
@@ -141,59 +139,88 @@ function [x,r,g,info] = spgl1( A, b, tau, sigma, x, options )
 %   USA
 %   ----------------------------------------------------------------------
 REVISION = '2.0';
-DATE     = '29 Apr 2015';
+DATE     = '27 Jan 2019';
 
 tic; % Start your watches!
+
 
 %----------------------------------------------------------------------
 % Check arguments and determine solver mode
 %----------------------------------------------------------------------
-if ~exist('options','var'), options = []; end
-if ~exist('x','var'), x = []; end
-if ~exist('sigma','var'), sigma = []; end
-if ~exist('tau','var'), tau = []; end
+if ~exist('x',      'var'), x       = []; end
+if ~exist('sigma',  'var'), sigma   = []; end
+if ~exist('tau',    'var'), tau     = []; end
 
-if nargin < 2 || isempty(b) || isempty(A)
+% Allow options to start at sigma or x
+if (isstruct(sigma) || ischar(sigma))
+    varargin = {sigma, x, varargin{:}};
+   sigma = []; x = [];
+elseif (isstruct(x) || ischar(x))
+   varargin = {x, varargin{:}};
+   x = [];
+end
+
+if ((nargin < 2) || isempty(b) || isempty(A))
    error('At least two arguments are required');
-elseif (isempty(sigma) && ~isempty(tau))   
+elseif (isempty(sigma) && ~isempty(tau))
+   % Single tau mode
    singleTau = true;
 else
-   if (isempty(tau)), tau = 0; end;
-   if (isempty(sigma)), sigma = 0; end;
+   % Root-finding mode
+   if (isempty(tau)),   tau   = 0; end
+   if (isempty(sigma)), sigma = 0; end
    singleTau = false;
 end
 
 
 %----------------------------------------------------------------------
-% Get problem size and parameters
+% Determine the problem size
 %----------------------------------------------------------------------
-m = length(b);
+m           = length(b);
+nProdA      = 0; % Reset the matrix-vector counters and initialize
+nProdAt     = 0; % the maximum number of products to one, in case
+maxMatvec   = 1; % we need to call the Aprod function below.
+timeProject = 0;
+timeMatProd = 0;
 
-% Determine initial x, vector length n, and see if problem is complex
+% Determine the problem size and check if problem is complex
 explicit = ~(isa(A,'function_handle'));
 if isnumeric(A)
-   n = size(A,2);
+   n     = size(A,2);
    realx = isreal(A) && isreal(b);
 else
+   % Infer the size of x based on the size of A'*b
    if isempty(x)
-      x = Aprod(b,2);
+      x     = Aprod(b,2);
+      n     = length(x);
+      realx = isreal(x) && isreal(b);
+      x     = []; % Use default initialization
+   else
+      n     = length(x);
+      realx = isreal(x) && isreal(b);
    end
-   n = length(x);
-   realx = isreal(x) && isreal(b);
-end
-if isempty(x)
-   x = zeros(n,1);
 end
 
 
 %----------------------------------------------------------------------
 % Apply default parameters where needed
 %----------------------------------------------------------------------
-defaultopts = spgSetParms();
-defaultopts.iterations = 10*m;
-options = spgSetParms(defaultopts, options);
+options = spgSetParms(varargin{:});
+if (isnan(options.iterations))
+   options.iterations = 10*m;
+end
 
-if (~isnan(options.iscomplex)), realx = (options.iscomplex == 0); end
+if (~isnan(options.iscomplex))
+   if (options.iscomplex == 0)
+      if (realx == false)
+         warning('SPGL1:Parameters','Detected complex variables, overriding options.iscomplex parameter');
+         options.iscomplex = 1;
+      end
+   else
+      realx = false;
+   end
+   realx = realx && (options.iscomplex == 0);
+end
 
 
 %----------------------------------------------------------------------
@@ -222,6 +249,7 @@ end
 bNorm         = norm(b,2);
 mu            = options.mu;
 weights       = options.weights;
+sigma2        = (sigma^2) / 2;
 
 % Operational variables
 stat          = 0;
@@ -230,9 +258,10 @@ lastFv        = -inf(nPrevVals,1);  % Last m function values.
 stepG         = 1;                  % Step length for projected gradient.
 
 % Compute modes
-rfModePrimal  = (options.rootfindMode == 0);
-rfTolDual     = options.rootfindTol;
+RFMODE_PRIMAL = 0;
+rootfindMode  = options.rootfindMode;
 hybridMode    = options.hybridMode;
+l1Mode        = isequal(options.primal_norm, @NormL1_primal);
 
 % Bounds
 stepMin       = options.stepMin;
@@ -246,18 +275,16 @@ bpTol         = options.bpTol;
 lsTol         = options.lsTol;
 optTol        = options.optTol;
 decTol        = options.decTol;
-relgapMinF    = options.relgapMinF; % gap / max(relgapMinF, f)
-relgapMinR    = options.relgapMinR; % rNorm / max(relgapMinR, rNorm)
+relgapMinF    = options.relgapMinF;  % gap / max(relgapMinF, f)
+relgapMinR    = options.relgapMinR;  % rNorm / max(relgapMinR, rNorm)
 rootfindTol   = options.rootfindTol; % (dual - sigma) / (primal - sigmal)
+if (isnan(bpTol)), bpTol = optTol; end
 
 % Runtime statistics
 iter          = 0;
-nProdA        = 0;
-nProdAt       = 0;
-nLineTot      = 0; % Total no. of linesearch steps.
+nLineTot      = 0; % Total number of linesearch steps.
+nLineErr      = 0;
 nNewton       = 0;
-timeProject   = 0;
-timeMatProd   = 0;
 
 % Output configuration
 fid           = options.fid;
@@ -278,8 +305,9 @@ EXIT_ITERATIONS    = 5;
 EXIT_LINE_ERROR    = 6;
 EXIT_SUBOPTIMAL_BP = 7;
 EXIT_MATVEC_LIMIT  = 8;
+EXIT_PROJECTION    = 9;
 
-EXIT_MESSAGES    = cell(8,1);
+EXIT_MESSAGES    = cell(9,1);
 EXIT_MESSAGES{1} = 'EXIT -- Found a root';
 EXIT_MESSAGES{2} = 'EXIT -- Found a BP solution';
 EXIT_MESSAGES{3} = 'EXIT -- Found a least-squares solution';
@@ -288,6 +316,7 @@ EXIT_MESSAGES{5} = 'ERROR EXIT -- Too many iterations';
 EXIT_MESSAGES{6} = 'ERROR EXIT -- Linesearch error';
 EXIT_MESSAGES{7} = 'EXIT -- Found a suboptimal BP solution';
 EXIT_MESSAGES{8} = 'EXIT -- Maximum matrix-vector operations reached';
+EXIT_MESSAGES{9} = 'ERROR EXIT -- Inaccurate projection';
 
 
 %----------------------------------------------------------------------
@@ -299,42 +328,6 @@ if (history)
    historyXNorm1 = zeros(min(maxIts,10000),1);
    historyRNorm2 = zeros(min(maxIts,10000),1);
    historyLambda = zeros(min(maxIts,10000),1);
-end
-
-
-%----------------------------------------------------------------------
-% Initialization for the hybrid mode
-%----------------------------------------------------------------------
-
-% Make sure we can use the hybrid mode
-if (hybridMode)
-   if ((~realx) || ...
-       (~strcmp(func2str(options.project), 'NormL1_project')) || ...
-       (~strcmp(func2str(options.primal_norm), 'NormL1_primal')) || ...
-       (~strcmp(func2str(options.dual_norm), 'NormL1_dual')))
-       Warning('Hybrid mode only applies to non-complex basis pursuit');
-       hybridMode = false;
-   end
-end
-
-% Initialize parameter for the hybrid mode
-if (hybridMode)
-   % Maintain support
-   xAbs   = abs(x);
-   xNorm1 = sum(xAbs);
-   if ((abs(xNorm1 - tau) / max(1,tau)) < 1e-8)
-      support = false(n,1); % Interior
-   else
-      support  = (xAbs >= 1e-9); % Boundary
-   end
-   
-   H = [];       % Current estimate of the Hessian
-   sqrt1 = [];   % Intermediate square-root values #1
-   sqrt2 = [];   % Intermediate square-root values #2
-   flagUseHessian = false;
-   lbfgsHist      = options.lbfgsHist;
-else
-   flagUseHessian = false;
 end
 
 
@@ -373,20 +366,27 @@ end
 % Setup for the first iteration
 %----------------------------------------------------------------------
 
-% When sigma >= ||b|| we have x = 0 as the optimal solution. Set tau = 0
-% to short-circuit the main loop.
+% When sigma >= ||b|| we have x = 0 as the optimal solution.
+% Set tau = 0 to short-circuit the main loop.
 if (~isempty(sigma) && (bNorm <= sigma))
    printf('W: sigma >= ||b||. Exact solution is x = 0.\n');
-   tau = 0; singleTau = true;
+   tau = 0; x = []; singleTau = true;
+   stat  = EXIT_OPTIMAL;
 end
 
-% Project x and compute the residual
-x = project(x,tau);
-r = b - Aprod(x,1);  % r = b - Ax
+% Default initialization for unspecified x
+if isempty(x)
+   x = zeros(n,1);
+   r = b;
+else
+   % Project x and compute the residual
+   x = project(x,tau);
+   r = b - Aprod(x,1);  % r = b - Ax
+end
 
 % Compute the objective and gradient
 f = (r'*r) / 2; 
-g = - Aprod(r,2);  % g = -A'r
+g = - Aprod(r,2);  % g = -A'r = A'(Ax-b)
 if (mu > 0)
    f = f + (mu/2) * (x'*x);
    g = g + mu * x;
@@ -398,7 +398,7 @@ fBest     = f;
 xBest     = x;
 fOld      = f;
 
-% Set current maximum dual objective
+% Set current maximum dual objective and the corresponding gNorm value
 fDualMax  = -Inf;
 gNormBest = NaN;
 
@@ -409,7 +409,7 @@ flagUpdateTau = false;
 
 % Compute projected gradient direction and initial steplength.
 dx     = project(x - g, tau) - x;
-dxNorm = norm(dx,inf); % TODO: Should this be options.norm_dual?
+dxNorm = norm(dx, inf);
 if dxNorm < (1 / stepMax)
    gStep = stepMax;
 else
@@ -418,19 +418,60 @@ end
 
 
 %----------------------------------------------------------------------
+% Initialization for the hybrid mode
+%----------------------------------------------------------------------
+
+% Make sure we can use the hybrid mode. Generate an error message if the
+% hybrid mode does not apply; we could alternatively disable the hybrid
+% mode and generate a warning, but this message might be missed. 
+if (hybridMode)
+   if ~(realx && l1Mode)
+       error('SPGL1:Parameters','Hybrid mode only applies to non-complex basis pursuit');
+   end
+end
+
+% Initialize parameter for the hybrid mode
+if (hybridMode)
+   % Determine the initial support
+   xAbs   = abs(x);
+   xNorm1 = sum(xAbs);
+   if ((abs(xNorm1 - tau) / max(1,tau)) < 1e-8)
+      support = false(n,1); % Interior of the L1 ball
+   else
+      support  = (xAbs >= 1e-9); % Boundary
+   end
+   
+   H     = [];   % Current estimate of the Hessian
+   sqrt1 = [];   % Intermediate square-root values #1
+   sqrt2 = [];   % Intermediate square-root values #2
+   flagUseHessian = false;
+   lbfgsHist      = options.lbfgsHist;
+else
+   flagUseHessian = false;
+end
+
+% Initialize weights when doing l1 minimization with mu > 0. 
+if ((l1Mode) && (mu > 0))
+   if (length(weights) == 1)
+      weightsFull = ones(n,1) * weights;
+   else
+      weightsFull = reshape(weights,n,1);
+   end
+end
+
+
+%----------------------------------------------------------------------
 % MAIN LOOP
 %----------------------------------------------------------------------
 while 1
-    
+
     %------------------------------------------------------------------
     % Determine the dual objective
     %------------------------------------------------------------------
-
-    gNorm = options.dual_norm(-g,weights); % ||A^Tr - mu*x||
+    gNorm = options.dual_norm(-g,weights); % ||-A^T(Ax-b) - mu*x||
     rtr = (r'*r);
-    if (mu > 0), xtx = (x'*x); end
 
-    if (mu == 0)
+    if ((mu == 0) || (~l1Mode))
        % Classic method to determine dual
        fDual = r'*b - tau*gNorm - (rtr)/2;
     else
@@ -442,7 +483,14 @@ while 1
        objValue = findLambdaStar(z,weightsFull,tau,mu);
        
        % Compute the dual objective
-       fDual = r'*b - xtx / 2 - objValue;
+       fDual = r'*b - rtr / 2 - objValue;
+    end
+
+    % Compute the augmented-residual norm
+    if (mu == 0)
+       rNorm = norm(r,2);
+    else
+       rNorm = sqrt(2*f); % f = 0.5 * r^Tr + 0.5*mu * x^Tx
     end
 
     % Use the largest dual objective to determine the relative duality
@@ -453,48 +501,53 @@ while 1
     else
        fDual = fDualMax;
     end
-
-    gap = f - fDual;
-
-    % Compute the augmented-residual norm
-    if (mu > 0)
-       rNorm = sqrt(rtr + mu*xtx);
-    else
-       rNorm = norm(r, 2);
-    end
-    
+    gap  = f - fDual;
+    rGap = abs(gap) / max(relgapMinF,f);
     
     %------------------------------------------------------------------
     % Test exit conditions
     %------------------------------------------------------------------
 
-    % Compute the relative duality gap
-    rGap  = abs(gap) / max(relgapMinF,f);
-    
     % Too many iterations and not converged.
     if (iter >= maxIts)
        stat = EXIT_ITERATIONS;
     end
 
+    % ====================================================================
     % Check optimality conditions
+    % ====================================================================
+
+    % Test if a least-squares solution has been found -- note that this
+    % will be a sub-optimal solution whenever rNorm is less than sigma;
+    % it is possible to reduce the norm of x.
+    if (gNorm <= lsTol * rNorm)
+       stat = EXIT_LEAST_SQUARES;
+    end
+    
     if (singleTau)
-       if ((rGap <= optTol) || (rNorm < optTol*bNorm))
+       % ==================================================================
+       % In previous versions the condition was (rNorm < optTol*bNorm). We
+       % replaced optTol by bpTol for increased control over the stopping
+       % criteria and to better reflects what the check is for. When the
+       % condition is met, we exit with EXIT_BPSOL_FOUND. To disable this
+       % stopping criterion, choose bpTol = 0.
+       % ==================================================================
+       if (rNorm < bpTol*bNorm)
+          stat = EXIT_BPSOL_FOUND;
+       end
+       if (rGap <= optTol)
           stat  = EXIT_OPTIMAL;
        end
     else
-       % Test if a least-squares solution has been found -- note that this
-       % will be a sub-optimal solution whenever rNorm is less than sigma
-       if (gNorm <= lsTol * rNorm)
-          stat = EXIT_LEAST_SQUARES;
-       end
-
-       % Classic mode
-       if (rfModePrimal)
+       if (rootfindMode == RFMODE_PRIMAL)
+          % -----------------------------------------
+          % Primal-based root finding (classic mode)
+          % -----------------------------------------
           aError1 = rNorm - sigma;
           aError2 = f - sigma^2 / 2;
           rError1 = abs(aError1) / max(1,rNorm);
           rError2 = abs(aError2) / max(1,f);
-          
+
           if ((rGap <= max(optTol, rError2)) || (rError1 <= optTol))
              if (rNorm <= bpTol * bNorm)
                 % Residual minimized: basis-pursuit solution
@@ -507,7 +560,7 @@ while 1
                 stat = EXIT_SUBOPTIMAL_BP;
              end
           end
-     
+
           % Check if tau needs to be updated
           testRelChange1 = (abs(f - fOld) <= decTol * f);
           testRelChange2 = (abs(f - fOld) <= 1e-1 * f * (abs(rNorm - sigma)));
@@ -521,7 +574,9 @@ while 1
              tauNew = max(0,tau + (rNorm * aError1) / gNormBest); 
           end
        else
+          % ------------------------
           % Dual-based root finding
+          % ------------------------
           
           % When the primal objective is sufficiently close to sigma
           % it is guaranteed that we can solve the problem for the
@@ -532,26 +587,36 @@ while 1
              flagFixTau = true;
           end
           
+          % Check the gap (dual - sigma) / (primal - sigmal). The rationale
+          % for this is that we can take a root-finding step if delta is
+          % sufficiently far above sigma, relative to the maximum, bounded
+          % from above by the gap between the primal objective to sigma.
+          % Note that the function values are the squared values
+          ratio = (fDual - sigma2) / (f - sigma2);
+          
           % The dual objective is used to determine candiate tau values,
           % and we maintain the largest one as the solution for the next
           % root-finding step.
           aErrorDual = (b'*r - tau * gNorm) - rNorm * sigma;
           tauNew = max(tauNew, tau + aErrorDual / gNorm);
-          
+
+          % Check optimality
           if ((flagFixTau) && (rGap <= optTol))
              stat = EXIT_ROOT_FOUND;
           end
-
-          % Root-finding based on the dual
+          
+          % Root-finding based on the dual - do not update tau if we
+          % already updated it in the previous iteration.
           if ((flagUpdateTau) || (stat) || (flagFixTau))
              flagUpdateTau = false;
-          elseif (rGap <= optTol)
+          elseif (rGap <= decTol)
              flagUpdateTau = true;
-          elseif (((fDual - sigma) / (f - sigma)) > rootfindTol)
+          elseif (ratio >= rootfindTol)
              flagUpdateTau = true;
           end
        end
     end
+
 
     %------------------------------------------------------------------
     % Update tau if needed
@@ -589,7 +654,7 @@ while 1
           
        % Reset status
        stat = 0;
-          
+
        % Reset the current maximum dual objective
        fDualMax = -Inf;
        gNormBest = NaN;
@@ -635,7 +700,6 @@ while 1
        % Try a quasi-Newton direction first
        % ===================================
        if (flagUseHessian)
-          statusMsg = 'H'; iterH = iterH + 1;
 
           % --------------------------------------------------
           % Step 1. Get search direction
@@ -650,8 +714,7 @@ while 1
 
              % If ||dTrans|| is tiny it is (near) orthogonal to the face
              if (norm(dTrans,2) <= 1e-10 * max(1,norm(d,2)))
-                %TODO(?): stat = EXIT_OPTIMAL;
-                lnErr = true;
+                stat = EXIT_OPTIMAL;
              end
 
              if (~lnErr)
@@ -678,9 +741,6 @@ while 1
 
              w = Aprod(d,1);
 
-             %TODO (should be able to omit this)
-             lnErr = false;
-
              % --------------------------------------------------
              % Step 3. Compute the optimal step length beta
              % --------------------------------------------------
@@ -703,7 +763,7 @@ while 1
           % --------------------------------------------------
           if (~lnErr)
              x = xOld + beta * d;
-             r = r - beta * w; % Avoid evaluating A*x
+             r = r - beta * w;     % Avoid evaluating A*x
              f = (r'*r) / 2;
              
              if (mu > 0)
@@ -713,15 +773,9 @@ while 1
              stepG = beta;
              nLineTot = nLineTot + 1;
              
-             % Reset function history (TODO)
-             %if (qnResetHist)
-                lastFv(:) = f;
-             %end
-             
-             % Record successful QN step (TODO)
-             %if (history)
-             %   historyQN(iter+1) = true;
-             %end
+             % Reset function value history after each successful
+             % hybrid step as a sufficient condition for convergence
+             lastFv(:) = f;
           end
 
        else
@@ -739,22 +793,74 @@ while 1
        % -----------------------------------------------------------------
        if (lnErr)
           [f,x,r,nLine,stepG,lnErr] = ...
-              spgLineCurvy(x,gStep*g,max(lastFv),@Aprod,b,@project,tau);
+              spgLineCurvy(x,gStep*g,max(lastFv),@Aprod,b,@project,tau,mu);
           nLineTot = nLineTot + nLine;
 
           if (lnErr)
              % Projected backtrack failed. Retry with feasible dir'n linesearch.
-             x    = xOld;
-             f    = fOld;
-             r    = rOld;
+             x = xOld;
+             f = fOld;
+             r = rOld;
           end
        end
+
+       % -----------------------------------------------------------------
+       % Line search #2: Backtracking line search
+       % -----------------------------------------------------------------
+       if ((lnErr) && (nLineErr < 5))
+          nLineErr = nLineErr + 1;
+          dx = project(x - gStep*g, tau) - x;
+          Ad = Aprod(dx,1);
+
+          % --------------------------------------------------------------
+          % The objective along the line search is given by f(alpha)
+          % = 1/2 * ||A(x+alpha*d) - b||_2^2 + mu/2 * ||x + alpha*d||_2^2
+          % = 1/2 * ||alpha*Ad - r||_2^2 + mu/2 * ||x + alpha*d||_2^2
+          % = 1/2 * (alpha^2 Ad'*Ad - 2*alpha*real(r'*Ad) + r'*r) +
+          %   mu/2* (x'*x + 2*alpha*real(x'*d) + alpha^2*(d'*d))
+          % --------------------------------------------------------------
+          
+          % Find alpha that gives the minimum function values:
+          % alpha * (Ad'*Ad + mu*d'*d) = real(r'*Ad - mu*x'd)
+          enumerator  = real(r'*Ad);
+          denominator = (Ad'*Ad);
+          if (mu > 0)
+             enumerator  = enumerator - mu*real(x'*dx);
+             denominator = denominator + mu*(dx'*dx);
+          end
+          alphaMin = enumerator / denominator;
+
+          % Find the maximum alpha value satisfying the Armijo condition:
+          % f(alpha) <= f(0) + alpha * gamma * real(g'*d)
+          gamma  = 1e-4;
+          enumerator = enumerator + gamma * dx'*g;
+          alphaArmijo = 2*enumerator / denominator;
+          
+          % Choose alpha as the minimum of alphaMin, alphaArmijo, and
+          % the maximum step lenght of 1 (in which case we reach the
+          % boundary of the feasible set).
+          alpha = min([1,alphaMin,alphaArmijo]);
+          
+          % Update x, the residula, and objective value
+          if (alpha >= 0)
+             x = x + alpha * dx;
+             r = b - Aprod(x,1);
+             f = (r'*r)/2;
+             if (mu > 0)
+                f = f + (mu/2)*(x'*x);
+             end
+             lnErr = false;
+          else
+             lnErr = true;
+          end          
+       end
+
        
        % -----------------------------------------------------------------
        % Line search failure: update Barzilai-Borwein scaling factor
        % -----------------------------------------------------------------
        if (lnErr)
-          % Revert to previous iterates and damp max BB step.
+          % Revert to previous iterates and damp maximum BB step.
           x = xOld;
           f = fOld;
           if maxLineErrors <= 0
@@ -764,12 +870,15 @@ while 1
              printf(['W: Linesearch failed with error %i. '...
                      'Damping max BB scaling to %6.1e.\n'],lnErr,stepMax);
              maxLineErrors = maxLineErrors - 1;
+             nLineErr = 0; % Reset the counter
           end
        end
 
-       % TODO
-       ensure(options.primal_norm(x,weights) <= tau+optTol);
-       
+       % Ensure that the projection is accurate
+       if (options.primal_norm(x,weights) > tau+optTol)
+          x = xOld;  f = fOld;  g = gOld;  r = rOld;
+          stat = EXIT_PROJECTION; break;
+       end
 
        %---------------------------------------------------------------
        % Update gradient and compute new Barzilai-Borwein scaling.
@@ -788,13 +897,17 @@ while 1
           else            gStep = min( stepMax, max(stepMin, sts/sty) );
           end
        else
-          gStep = min( stepMax, gStep );
+          gStep = min(stepMax, gStep);
        end
        
        
        %---------------------------------------------------------------
        % Update a Hessian approximation (hybrid mode)
        %---------------------------------------------------------------
+       
+       % Initial checks might fail to detect complex mode when A
+       % is an opterator, check complexity of x just to be safe.
+       if (~isreal(x)), hybridMode = false; end
        if (hybridMode)
           supportOld = support;
           absx = abs(x); % Used for support determination later
@@ -802,7 +915,7 @@ while 1
 
           % Step 1. Determine support
           if ((abs(xNorm1 - tau) / max(1,tau)) > 1e-8)
-             support = false(n,1);    % Interior of the L1 ball
+             support = false(n,1); % Interior of the L1 ball
              nSupport = n+1;
           else
              support  = (absx > 1e-9);
@@ -905,7 +1018,7 @@ while 1
     %------------------------------------------------------------------
     % Update function history.
     %------------------------------------------------------------------
-    if ((singleTau) || (f > sigma^2 / 2)) % (Don't update if superoptimal)
+    if ((singleTau) || (f > sigma2)) % (Don't update if superoptimal)
        lastFv(mod(iter,nPrevVals)+1) = f;
        if fBest > f
           fBest = f;
@@ -1030,56 +1143,8 @@ end % function spg
 % =====================================================================
 
 % ----------------------------------------------------------------------
-function [fNew,xNew,rNew,iter,err] = spgLine(f,x,d,gtd,fMax,Aprod,b)
-% ----------------------------------------------------------------------
-% Nonmonotone linesearch.
-
-EXIT_CONVERGED  = 0;
-EXIT_ITERATIONS = 1;
-maxIts = 10;
-step   = 1;
-iter   = 0;
-gamma  = 1e-4;
-gtd    = -real(gtd);
-
-while 1
-
-    % Evaluate trial point and function value.
-    xNew = x + step*d;
-    rNew = b - Aprod(xNew,1);
-    fNew = rNew'*rNew / 2;
-
-    % Check exit conditions.
-    if fNew < fMax + gamma*step*gtd  % Sufficient descent condition.
-       err = EXIT_CONVERGED;
-       break
-    elseif  iter >= maxIts           % Too many linesearch iterations.
-       err = EXIT_ITERATIONS;
-       break
-    end
-    
-    % New linesearch iteration.
-    iter = iter + 1;
-    
-    % Safeguarded quadratic interpolation.
-    if step <= 0.1
-       step  = step / 2;
-    else
-       tmp = (-gtd*step^2) / (2*(fNew-f-step*gtd));
-       if tmp < 0.1 || tmp > 0.9*step || isnan(tmp)
-          tmp = step / 2;
-       end
-       step = tmp;
-    end
-    
-end % while 1
-
-end % function spgLine
-
-
-% ----------------------------------------------------------------------
 function [fNew,xNew,rNew,iter,step,err] = ...
-    spgLineCurvy(x,g,fMax,Aprod,b,project,tau)
+    spgLineCurvy(x,g,fMax,Aprod,b,project,tau,mu)
 % ----------------------------------------------------------------------
 % Projected backtracking linesearch.
 % On entry,
@@ -1103,6 +1168,9 @@ while 1
     xNew     = project(x - step*scale*g, tau);
     rNew     = b - Aprod(xNew,1);
     fNew     = rNew'*rNew / 2;
+    if (mu > 0)
+       fNew = fNew + (mu/2)*(xNew'*xNew);
+    end
     s        = xNew - x;
     gts      = scale * real(g' * s);
     if gts >= 0

@@ -1,14 +1,14 @@
-function [x,itn] = oneProjector(b,d,tau)
+function [x,lambda] = oneProjector(b,d,tau)
 % ONEPROJECTOR  Projects b onto the weighted one-norm ball of radius tau
 %
-%    [X,ITN] = ONEPROJECTOR(B,TAU) returns the orthogonal projection
+%    [X,lambda] = ONEPROJECTOR(B,TAU) returns the orthogonal projection
 %    of the vector b onto the one-norm ball of radius tau. The return
 %    vector X which solves the problem
 %
 %            minimize  ||b-x||_2  st  ||x||_1 <= tau.
 %               x
 %
-%    [X,ITN] = ONEPROJECTOR(B,D,TAU) returns the orthogonal
+%    [X,lambda] = ONEPROJECTOR(B,D,TAU) returns the orthogonal
 %    projection of the vector b onto the weighted one-norm ball of
 %    radius tau, which solves the problem
 %
@@ -17,8 +17,8 @@ function [x,itn] = oneProjector(b,d,tau)
 %
 %    If D is empty, all weights are set to one, i.e., D = I.
 %
-%    In both cases, the return value ITN given the number of elements
-%    of B that were thresholded.
+%    In both cases, the return value lambda gives the soft-thresholding
+%    value.
 %
 % See also spgl1.
 
@@ -66,8 +66,8 @@ end
 
 % Quick return for the easy cases.
 if isscalar(d)  &&  d == 0
-   x   = b;
-   itn = 0;
+   x     = b;
+   lamda = 0;
    return
 end
 
@@ -77,12 +77,12 @@ b = abs(b);
 
 % Perform the projection
 if isscalar(d)
-  [x,itn] = oneProjectorMex(b,tau/d);
+  [x,lambda] = oneProjectorMex(b,tau/d);
 else
   d   = abs(d);
   idx = find(d > eps); % Get index of all non-zero entries of d
   x   = b;             % Ensure x_i = b_i for all i not in index set idx
-  [x(idx),itn] = oneProjectorMex(b(idx),d(idx),tau);
+  [x(idx),lambda] = oneProjectorMex(b(idx),d(idx),tau);
 end
 
 % Restore signs in x

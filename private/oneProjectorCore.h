@@ -28,7 +28,10 @@
 #define __ONEPROJECTORCORE_H__
 
 /* The entries in b are non-negative, those in d strictly positive */
-int projectI( double xPtr[], double bPtr[],                double tau, int n );
-int projectD( double xPtr[], double bPtr[], double dPtr[], double dOrg[], double tau, int n );
+double projectI( double xPtr[], double bPtr[],                double tau, int n );
+double projectD( double xPtr[], double bPtr[], double dPtr[], double dOrg[], double tau, int n);
+
+/* The entries in b are signed, those in d strictly positive */
+double projectW( double xPtr[], double bPtr[], double dPtr[], double dOrg[], double tau, int n, double *xNorm);
 
 #endif

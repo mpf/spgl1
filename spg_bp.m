@@ -1,4 +1,4 @@
-function [x,r,g,info] = spg_bp(A,b,options )
+function [x,r,g,info] = spg_bp(A,b,varargin )
 %SPG_BP  Solve the basis pursuit (BP) problem
 %
 %   SPG_BP is designed to solve the basis pursuit problem
@@ -33,7 +33,6 @@ function [x,r,g,info] = spg_bp(A,b,options )
 %   http://www.cs.ubc.ca/labs/scl/spgl1
 %   $Id: spg_bp.m 1074 2008-08-19 05:24:28Z ewout78 $
 
-if ~exist('options','var'), options = []; end
 if ~exist('b','var') || isempty(b)
     error('Second argument cannot be empty.');
 end
@@ -44,4 +43,4 @@ end
 sigma = 0;
 tau = 0;
 x0  = [];
-[x,r,g,info] = spgl1(A,b,tau,sigma,x0,options);
+[x,r,g,info] = spgl1(A,b,tau,sigma,x0,varargin{:});

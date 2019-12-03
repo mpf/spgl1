@@ -1,3 +1,5 @@
 web/eqs
 web/*.html
 *~
+
+.DS_Store

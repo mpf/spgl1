@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>SPGL1: A solver for sparse optimization &#8212; SPGL1 2.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -40,21 +38,43 @@
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#lasso">Lasso</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#basis-pursuit-denoise">Basis-pursuit denoise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#group-norm-and-mmv">Group norm and MMV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#generic-interface">Generic interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#custom-norms">Custom norms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#regularization">Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#information-structure">Information structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#exit-status">Exit status</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="options.html">Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="options.html#predefined-option-sets">Predefined option sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="options.html#output-options">Output options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="options.html#resource-limits">Resource limits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="options.html#problem-settings">Problem settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="options.html#optimality-conditions">Optimality conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="options.html#primal-and-dual-norms">Primal and dual norms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="options.html#root-find-mode">Root-find mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="options.html#subspace-minimization">Subspace minimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="options.html#line-search">Line search</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pareto.html">Pareto curve</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pareto.html#root-finding">Root finding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pareto.html#implementation">Implementation</a></li>
+</ul>
+</li>
 </ul>
 </div>
-</div>
-<div class="section" id="cool-section-on-the-method">
-<h1>Cool section on the method<a class="headerlink" href="#cool-section-on-the-method" title="Permalink to this headline">¶</a></h1>
-<p>This is some text. Let’s see if <span class="math notranslate nohighlight">\(\alpha=\beta\)</span>.</p>
-<div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}(a + b)^2 = a^2 + 2ab + b^2\\(a - b)^2 = a^2 - 2ab + b^2\end{aligned}\end{align} \]</div>
 </div>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
 </div>
 
@@ -78,6 +98,9 @@
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="options.html">Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pareto.html">Pareto curve</a></li>
 </ul>
 
 <div class="relations">
@@ -89,13 +112,11 @@
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -116,7 +137,7 @@
       &copy;2019, Ewout van den Berg and Michael P. Friedlander.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

@@ -11,17 +11,10 @@ SPGL1: A solver for sparse optimization
    :caption: Contents:
 
    install
+   introduction
+   options
+   pareto
 
-Cool section on the method
-==========================
-
-This is some text. Let's see if :math:`\alpha=\beta`.
-
-.. math::
-
-   (a + b)^2 = a^2 + 2ab + b^2
-
-   (a - b)^2 = a^2 - 2ab + b^2
 
 Indices and tables
 ==================

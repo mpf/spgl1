@@ -1,4 +1,4 @@
-function [x,r,g,info] = spg_group( A, b, groups, sigma, options )
+function [x,r,g,info] = spg_group( A, b, groups, sigma, varargin )
 %SPG_GROUP  Solve jointly-sparse basis pursuit denoise (BPDN)
 %
 %   SPG_GROUP is designed to solve the basis pursuit denoise problem
@@ -41,7 +41,6 @@ function [x,r,g,info] = spg_group( A, b, groups, sigma, options )
 %   http://www.cs.ubc.ca/labs/scl/spgl1
 %   $Id$
 
-if ~exist('options','var'), options = []; end
 if ~exist('sigma','var') || isempty(sigma), sigma = 0; end
 if ~exist('groups','var') || isempty(groups)
     error('Third argument cannot be empty.');
@@ -60,6 +59,7 @@ n = length(g);
 groups = sparse(idx2,1:n,ones(1,n),length(gidx),n);
 
 % Set projection specific functions
+options = spgSetParms(varargin{:});
 options.project     = @(x,weight,tau) NormGroupL2_project(groups,x,weight,tau);
 options.primal_norm = @(x,weight    ) NormGroupL2_primal(groups,x,weight);
 options.dual_norm   = @(x,weight    ) NormGroupL2_dual(groups,x,weight);

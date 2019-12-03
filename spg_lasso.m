@@ -1,4 +1,4 @@
-function [x,r,g,info] = spg_lasso(A,b,tau,options )
+function [x,r,g,info] = spg_lasso(A,b,tau,varargin )
 %SPG_LASSO  Solve the LASSO problem
 %
 %   SPG_LASSO is designed to solve the LASSO problem
@@ -32,7 +32,6 @@ function [x,r,g,info] = spg_lasso(A,b,tau,options )
 %   http://www.cs.ubc.ca/labs/scl/spgl1
 %   $Id: spg_lasso.m 1074 2008-08-19 05:24:28Z ewout78 $
 
-if ~exist('options','var'), options = []; end
 if ~exist('tau','var'), tau = []; end
 if ~exist('b','var') || isempty(b)
     error('Second argument cannot be empty.');
@@ -43,4 +42,4 @@ end
 
 sigma = [];
 x0  = [];
-[x,r,g,info] = spgl1(A,b,tau,sigma,x0,options);
+[x,r,g,info] = spgl1(A,b,tau,sigma,x0,varargin{:});

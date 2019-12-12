@@ -1,4 +1,4 @@
-function [x,r,g,info] = spg_mmv( A, B, sigma, options )
+function [x,r,g,info] = spg_mmv( A, B, sigma, varargin )
 %SPG_MMV  Solve multi-measurement basis pursuit denoise (BPDN)
 %
 %   SPG_MMV is designed to solve the basis pursuit denoise problem
@@ -34,7 +34,6 @@ function [x,r,g,info] = spg_mmv( A, B, sigma, options )
 %   http://www.cs.ubc.ca/labs/scl/spgl1
 %   $Id$
 
-if ~exist('options','var'), options = []; end
 if ~exist('sigma','var'), sigma = 0; end
 if ~exist('B','var') || isempty(B)
     error('Second argument cannot be empty.');
@@ -54,6 +53,7 @@ else
 end
 
 % Set projection specific functions
+options = spgSetParms(varargin{:});
 options.project     = @(x,weight,tau) NormL12_project(groups,x,weight,tau);
 options.primal_norm = @(x,weight    ) NormL12_primal(groups,x,weight);
 options.dual_norm   = @(x,weight    ) NormL12_dual(groups,x,weight);
@@ -65,7 +65,7 @@ x0  = [];
 n = round(length(x) / groups);
 m = size(B,1);
 x = reshape(x,n,groups);
-y = reshape(r,m,groups);
+r = reshape(r,m,groups);
 g = reshape(g,n,groups);
 
 

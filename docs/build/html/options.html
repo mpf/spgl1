@@ -1,0 +1,200 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Options &#8212; SPGL1 2.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Pareto curve" href="pareto.html" />
+    <link rel="prev" title="Introduction" href="introduction.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="options">
+<h1>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h1>
+<p>Below we discuss the available options in the form <code class="docutils literal notranslate"><span class="pre">options.&lt;name&gt;</span></code>. These values can be set directly in the options structure, or can be provided as key-value pairs with <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;&gt;</span></code> as the key. Some examples for option usage are as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">Direct</span> <span class="n">specification</span> <span class="n">of</span> <span class="n">parameters</span>
+<span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="o">=</span> <span class="n">spgl1</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span><span class="s1">&#39;classic&#39;</span><span class="p">,</span><span class="s1">&#39;iterations&#39;</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span><span class="s1">&#39;verbosity&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+
+<span class="o">%</span> <span class="n">Separate</span> <span class="n">preparation</span> <span class="n">of</span> <span class="n">the</span> <span class="n">options</span>
+<span class="n">options</span> <span class="o">=</span> <span class="n">spgSetParams</span><span class="p">(</span><span class="s1">&#39;classic&#39;</span><span class="p">,</span><span class="s1">&#39;iterations&#39;</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span><span class="s1">&#39;verbosity&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="o">=</span> <span class="n">spgl1</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span><span class="n">options</span><span class="p">);</span>
+
+<span class="o">%</span> <span class="n">Manual</span> <span class="n">creation</span> <span class="n">of</span> <span class="n">the</span> <span class="n">options</span> <span class="n">structure</span>
+<span class="n">options</span> <span class="o">=</span> <span class="n">struct</span><span class="p">();</span>
+<span class="n">options</span><span class="o">.</span><span class="n">iterations</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">;</span>
+<span class="n">options</span><span class="o">.</span><span class="n">verbosity</span>  <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="o">=</span> <span class="n">spgl1</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span><span class="n">options</span><span class="p">);</span>
+
+<span class="o">%</span> <span class="n">Function</span> <span class="n">call</span> <span class="k">with</span> <span class="n">mixed</span> <span class="n">structure</span> <span class="ow">and</span> <span class="n">key</span><span class="o">-</span><span class="n">value</span> <span class="n">pair</span> <span class="n">parameters</span>
+<span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="o">=</span> <span class="n">spgl1</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span><span class="s1">&#39;classic&#39;</span><span class="p">,</span><span class="n">options</span><span class="p">,</span><span class="s1">&#39;mu&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="section" id="predefined-option-sets">
+<h2>Predefined option sets<a class="headerlink" href="#predefined-option-sets" title="Permalink to this headline">¶</a></h2>
+<p>TODO</p>
+</div>
+<div class="section" id="output-options">
+<h2>Output options<a class="headerlink" href="#output-options" title="Permalink to this headline">¶</a></h2>
+<p><strong>options.fid</strong> gives the file identifier used for output. By default it is set to 1 (standard output), but it can be set to a file opened with <code class="docutils literal notranslate"><span class="pre">fopen</span></code> to redirect the output to a file.</p>
+<p><strong>options.verbosity</strong> controls the level of output ranging for no output (0) to all output (3).</p>
+<p><strong>options.history</strong> boolean flag that indicates whether the norms of the iterates, residuals, and gradient values should be recorded per iteration. By default the recording of the history is disabled.</p>
+</div>
+<div class="section" id="resource-limits">
+<h2>Resource limits<a class="headerlink" href="#resource-limits" title="Permalink to this headline">¶</a></h2>
+<p><strong>options.iterations</strong> gives the maximum allowed number of iteration. By default this value is set to ten times the number of rows in A. If the maximum number of iterations is reached, the solver returns with an  <code class="docutils literal notranslate"><span class="pre">EXIT_ITERATIONS</span></code> error status.</p>
+<p><strong>options.maxMatvec</strong> gives the maximum allowed number of products with A or its transpose. When exceeded, the solver returns with an <code class="docutils literal notranslate"><span class="pre">EXIT_MATVEC_LIMIT</span></code> error status.</p>
+<p><strong>options.maxRuntime</strong> gives the maximum runtime in seconds. To keep the overhead of checking to a minimum, the runtime limit is checked approximately every 0.5 seconds. When the maximum runtime is exceeded, the solver returns with an <code class="docutils literal notranslate"><span class="pre">EXIT_RUNTIME</span></code> error status.</p>
+</div>
+<div class="section" id="problem-settings">
+<h2>Problem settings<a class="headerlink" href="#problem-settings" title="Permalink to this headline">¶</a></h2>
+<p><strong>options.iscomplex</strong> indicates whether the problem has complex or real x. SPGL1 can typically determine this automatically, but it helps to set the flag when dealing with complex variables.</p>
+<p><strong>options.mu</strong> gives the regularization parameter <span class="math notranslate nohighlight">\(\mu\)</span>. By default this value is set to 0.</p>
+</div>
+<div class="section" id="optimality-conditions">
+<h2>Optimality conditions<a class="headerlink" href="#optimality-conditions" title="Permalink to this headline">¶</a></h2>
+<p><strong>options.bpTol</strong> specifies the tolerance for declaring a basis-pursuit solution (status <code class="docutils literal notranslate"><span class="pre">EXIT_BPSOL_FOUND</span></code>) when solving a Lasso problem. The exact stopping criterion used is that the residual norm is less than <code class="docutils literal notranslate"><span class="pre">options.bpTol</span></code> times the norm of input parameter b.</p>
+<p><strong>options.lsTol</strong> specifies the tolerance for declaring a least-squares solution (status <code class="docutils literal notranslate"><span class="pre">EXIT_LEAST_SQUARES</span></code>). The exact stopping criterion used is that the gradient norm is less than or equal to <code class="docutils literal notranslate"><span class="pre">options.lsTol</span></code> times the norm of the residual.</p>
+<p><strong>options.optTol</strong> specifies the tolerance for declaring an optimal solution (status <code class="docutils literal notranslate"><span class="pre">EXIT_OPTIMAL</span></code>). This condition is met when the relative duality gap is less than or equal to <code class="docutils literal notranslate"><span class="pre">options.optTol`,</span> <span class="pre">where</span> <span class="pre">the</span> <span class="pre">relative</span> <span class="pre">duality</span> <span class="pre">gap</span> <span class="pre">is</span> <span class="pre">defined</span> <span class="pre">as</span> <span class="pre">the</span> <span class="pre">difference</span> <span class="pre">between</span> <span class="pre">the</span> <span class="pre">primal</span> <span class="pre">and</span> <span class="pre">dual</span> <span class="pre">solution</span> <span class="pre">divided</span> <span class="pre">by</span> <span class="pre">the</span> <span class="pre">maximum</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">current</span> <span class="pre">primal</span> <span class="pre">value</span> <span class="pre">and</span> <span class="pre">``options.relgapMinF</span></code>. In basis-pursuit mode, this parameter is also used to determine when to initiate a root-finding step. An illustration of primal and dual feasible points for a Lasso subproblem is given below:</p>
+<div class="figure align-default" id="id1">
+<a class="reference internal image-reference" href="_images/Lasso.png"><img alt="_images/Lasso.png" src="_images/Lasso.png" style="width: 502.0px; height: 408.5px;" /></a>
+<p class="caption"><span class="caption-text">Pareto curve along with primal and dual feasible points.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+<p><strong>options.projTol</strong> specifies the tolerance for projection. This variable is mostly for internal use, and it set to <code class="docutils literal notranslate"><span class="pre">options.optTol</span></code> by default for backward compatibility. If the projection was found to be inaccurate the solver will exit with the <code class="docutils literal notranslate"><span class="pre">EXIT_PROJECTION</span></code> status.</p>
+<p><strong>options.relgapMinF</strong> is used to define the relative duality gap. Tis value is obtained by dividing the primal-dual gap by the maximum of <code class="docutils literal notranslate"><span class="pre">options.relgapMinF</span></code> and the primal objective. By default, this parameter is set to 1.</p>
+<p><strong>options.relgapMinR</strong> is used to define the relative residual error. This value is obtained by dividing the different between the residual norm and sigma by the maximum of <code class="docutils literal notranslate"><span class="pre">options.relgapMinR</span></code> and the residual norm. By default, this parameter is set to 1.</p>
+</div>
+<div class="section" id="primal-and-dual-norms">
+<h2>Primal and dual norms<a class="headerlink" href="#primal-and-dual-norms" title="Permalink to this headline">¶</a></h2>
+<p>The following options must be set together and provide a consistent combination of primal norm, dual norm, and orthogonal projection. The weights can be used as part of the norm, or set to the empty vector <code class="docutils literal notranslate"><span class="pre">[]</span></code>.</p>
+<p><strong>options.weights</strong> vector of weights for the primal norm.</p>
+<p><strong>options.primal_norm</strong> function that computes the primal norm of a given input vector, along with the weights.</p>
+<p><strong>options.dual_norm</strong> function that computes the dual norm of a given input vector, along with the weights for the primal norm.</p>
+<p><strong>options.project</strong> function that computes the orthogonal projection onto a ball of radius <span class="math notranslate nohighlight">\(\tau\)</span>, as induced by the primal norm.</p>
+</div>
+<div class="section" id="root-find-mode">
+<h2>Root-find mode<a class="headerlink" href="#root-find-mode" title="Permalink to this headline">¶</a></h2>
+<p><strong>options.rootfindMode</strong> - as explained in the <a href="#id2"><span class="problematic" id="id3">`Pareto curve&lt;pareto.html&gt;`_</span></a> section there are two modes for root finding: the primal root-finding mode and the dual root-finding mode. Set this option to 0 for the primal mode, and to 1 for the dual mode.</p>
+<p><strong>options.rootfindTol</strong> - in the dual root-finding mode, this parameter can be set to a value between 0 and 1 to indicate when root finding should be enabled. Values close to 1 require stricter sub-problem solves, whereas values closer to 0 allow relaxed subproblem solves, at the cost of a potentially larger number of sub-problems. By default this value is set to 0.5.</p>
+</div>
+<div class="section" id="subspace-minimization">
+<h2>Subspace minimization<a class="headerlink" href="#subspace-minimization" title="Permalink to this headline">¶</a></h2>
+<p>SPGL1 supports subspace minimization when solving (weighted) one-norm minimization problems.</p>
+<p><strong>options.hybridMode</strong> is a boolean parameter that specified whether subspace minimization should be activated.</p>
+<p><strong>options.lbfgsHist</strong> gives the number of vectors in the L-BFGS approximation, when using subspace minimization.</p>
+</div>
+<div class="section" id="line-search">
+<h2>Line search<a class="headerlink" href="#line-search" title="Permalink to this headline">¶</a></h2>
+<p><strong>options.nPrevVals</strong> indicates the number of previous objective values used for non-monotone line search.</p>
+<p><strong>options.stepMin</strong> indicates the minimum step length for Barzilai-Borwein scaling.</p>
+<p><strong>options.stepMax</strong> indicates the maximum step length for Barzilai-Borwein scaling.</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">SPGL1</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#predefined-option-sets">Predefined option sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output-options">Output options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#resource-limits">Resource limits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#problem-settings">Problem settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optimality-conditions">Optimality conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#primal-and-dual-norms">Primal and dual norms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#root-find-mode">Root-find mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#subspace-minimization">Subspace minimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#line-search">Line search</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pareto.html">Pareto curve</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="introduction.html" title="previous chapter">Introduction</a></li>
+      <li>Next: <a href="pareto.html" title="next chapter">Pareto curve</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Ewout van den Berg and Michael P. Friedlander.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/options.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,4 +1,4 @@
-function [x,r,g,info] = spg_bpdn( A, b, sigma, options )
+function [x,r,g,info] = spg_bpdn( A, b, sigma, varargin )
 %SPG_BPDN  Solve the basis pursuit denoise (BPDN) problem
 %
 %   SPG_BPDN is designed to solve the basis pursuit denoise problem
@@ -34,7 +34,6 @@ function [x,r,g,info] = spg_bpdn( A, b, sigma, options )
 %   http://www.cs.ubc.ca/labs/scl/spgl1
 %   $Id: spg_bpdn.m 1389 2009-05-29 18:32:33Z mpf $
 
-if ~exist('options','var'), options = []; end
 if ~exist('sigma','var'), sigma = 0; end
 if ~exist('b','var') || isempty(b)
     error('Second argument cannot be empty.');
@@ -45,4 +44,4 @@ end
 
 tau = 0;
 x0  = [];
-[x,r,g,info] = spgl1(A,b,tau,sigma,x0,options);
+[x,r,g,info] = spgl1(A,b,tau,sigma,x0,varargin{:});

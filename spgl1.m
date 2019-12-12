@@ -139,9 +139,9 @@ function [x,r,g,info] = spgl1( A, b, tau, sigma, x, varargin )
 %   USA
 %   ----------------------------------------------------------------------
 REVISION = '2.0';
-DATE     = '27 Jan 2019';
+DATE     = '28 Nov 2019';
 
-tic; % Start your watches!
+t0 = tic(); % Start your watches!
 
 
 %----------------------------------------------------------------------
@@ -275,16 +275,21 @@ bpTol         = options.bpTol;
 lsTol         = options.lsTol;
 optTol        = options.optTol;
 decTol        = options.decTol;
+projTol       = options.projTol;
 relgapMinF    = options.relgapMinF;  % gap / max(relgapMinF, f)
 relgapMinR    = options.relgapMinR;  % rNorm / max(relgapMinR, rNorm)
 rootfindTol   = options.rootfindTol; % (dual - sigma) / (primal - sigmal)
 if (isnan(bpTol)), bpTol = optTol; end
+if (isnan(projTol)), projTol = optTol; end
 
 % Runtime statistics
 iter          = 0;
 nLineTot      = 0; % Total number of linesearch steps.
 nLineErr      = 0;
 nNewton       = 0;
+
+% Maximum runtime
+runtimeCheckEvery = 1; % Check runtime every # iterations
 
 % Output configuration
 fid           = options.fid;
@@ -305,18 +310,22 @@ EXIT_ITERATIONS    = 5;
 EXIT_LINE_ERROR    = 6;
 EXIT_SUBOPTIMAL_BP = 7;
 EXIT_MATVEC_LIMIT  = 8;
-EXIT_PROJECTION    = 9;
+EXIT_RUNTIME       = 9;
+EXIT_PROJECTION    = 10;
 
-EXIT_MESSAGES    = cell(9,1);
-EXIT_MESSAGES{1} = 'EXIT -- Found a root';
-EXIT_MESSAGES{2} = 'EXIT -- Found a BP solution';
-EXIT_MESSAGES{3} = 'EXIT -- Found a least-squares solution';
-EXIT_MESSAGES{4} = 'EXIT -- Optimal solution found';
-EXIT_MESSAGES{5} = 'ERROR EXIT -- Too many iterations';
-EXIT_MESSAGES{6} = 'ERROR EXIT -- Linesearch error';
-EXIT_MESSAGES{7} = 'EXIT -- Found a suboptimal BP solution';
-EXIT_MESSAGES{8} = 'EXIT -- Maximum matrix-vector operations reached';
-EXIT_MESSAGES{9} = 'ERROR EXIT -- Inaccurate projection';
+%                  {Success, Status string                             }
+%                  {-------- ------------------------------------------}
+EXIT_STATUS      = cell(9,2);
+EXIT_STATUS(1,:) = {true,    'EXIT -- Found a root'};
+EXIT_STATUS(2,:) = {true,    'EXIT -- Found a BP solution'};
+EXIT_STATUS(3,:) = {true,    'EXIT -- Found a least-squares solution'};
+EXIT_STATUS(4,:) = {true,    'EXIT -- Optimal solution found'};
+EXIT_STATUS(5,:) = {false,   'ERROR EXIT -- Too many iterations'};
+EXIT_STATUS(6,:) = {false,   'ERROR EXIT -- Linesearch error'};
+EXIT_STATUS(7,:) = {true,    'EXIT -- Found a suboptimal BP solution'};
+EXIT_STATUS(8,:) = {true,    'EXIT -- Maximum matrix-vector operations reached'};
+EXIT_STATUS(9,:) = {false,   'ERROR EXIT -- Maximum runtime reached'};
+EXIT_STATUS(10,:)= {false,   'ERROR EXIT -- Inaccurate projection'};
 
 
 %----------------------------------------------------------------------
@@ -336,7 +345,7 @@ end
 %----------------------------------------------------------------------
 printf('\n');
 printf(' %s\n',repmat('=',1,80));
-printf(' SPGL1  v.%s (%s)\n', REVISION, DATE);
+printf(' SPGL1  v%s (%s)\n', REVISION, DATE);
 printf(' %s\n',repmat('=',1,80));
 printf(' %-22s: %8i %4s',   'No. rows',       m,      '');
 printf(' %-22s: %8i\n',     'No. columns',    n         );
@@ -352,13 +361,13 @@ printf(' %-22s: %8.2e %4s', 'Basis pursuit tol', bpTol, '');
 printf(' %-22s: %8i\n',     'Maximum iterations',maxIts   );
 printf('\n');
 if singleTau
-   logB = ' %5i  %13.7e  %13.7e  %9.2e  %6.1f';
-   logH = ' %5s  %13s  %13s  %9s  %6s\n';
-   printf(logH,'Iter','Objective','Relative Gap','gNorm','stepG');
+   logB = ' %5i  %13.7e  %13.7e  %9.2e';
+   logH = ' %5s  %13s  %13s  %9s\n';
+   printf(logH,'Iter','Objective','Relative Gap','gNorm');
 else
-   logB = ' %5i  %13.7e  %13.7e  %9.2e  %9.3e  %6.1f';
-   logH = ' %5s  %13s  %13s  %9s  %9s  %6s  %13s\n';
-   printf(logH,'Iter','Objective','Relative Gap','Rel Error','gNorm','stepG','tau');
+   logB = ' %5i  %13.7e  %13.7e  %9.2e  %9.3e';
+   logH = ' %5s  %13s  %13s  %9s  %9s  %13s\n';
+   printf(logH,'Iter','Objective','Relative Gap','Rel Error','gNorm','tau');
 end
 
 
@@ -403,9 +412,10 @@ fDualMax  = -Inf;
 gNormBest = NaN;
 
 % Root-finding parameters
-tauNew        = tau;
-flagFixTau    = false; % Make sure tau is no longer updated
-flagUpdateTau = false;
+tauNew               = tau;
+flagFixTau           = false; % Make sure tau is no longer updated
+flagUpdateTau        = false;
+flagRequestUpdateTau = false;
 
 % Compute projected gradient direction and initial steplength.
 dx     = project(x - g, tau) - x;
@@ -512,6 +522,21 @@ while 1
     if (iter >= maxIts)
        stat = EXIT_ITERATIONS;
     end
+    
+    % Maximum runtime exceeded
+    if (mod(iter, runtimeCheckEvery) == 0)
+       % Aim to check every 0.5 seconds, which amounts to a number of
+       % (0.1 / (runtime / iter)) iterations. We allow increases in the
+       % check frequency of at most 10. In case the runtime per iterations
+       % is very high, we check every single iteration. The adaptive
+       % approach to runtime check frequency is used to reduce the number
+       % of calls to relatively expensive toc function.
+       runtime = toc(t0);
+       runtimeCheckEvery = max(1, min(10*runtimeCheckEvery, floor(0.5*iter / runtime)));
+       if (runtime > options.maxRuntime)
+          stat = EXIT_RUNTIME;
+       end
+    end
 
     % ====================================================================
     % Check optimality conditions
@@ -565,10 +590,12 @@ while 1
           testRelChange1 = (abs(f - fOld) <= decTol * f);
           testRelChange2 = (abs(f - fOld) <= 1e-1 * f * (abs(rNorm - sigma)));
           flagUpdateTau  = (((testRelChange1) && (rNorm >  2 * sigma)) || ...
-                            ((testRelChange2) && (rNorm <= 2 * sigma))) && ...
+                            ((testRelChange2) && (rNorm <= 2 * sigma)) || ...
+                            (flagRequestUpdateTau)) && ...
                             ~stat && ~flagUpdateTau;
                          
           flagUpdateTau = flagUpdateTau && ~flagFixTau;
+          flagRequestUpdateTau = false;
                          
           if (flagUpdateTau)
              tauNew = max(0,tau + (rNorm * aError1) / gNormBest); 
@@ -668,9 +695,9 @@ while 1
        tauFlag = '              ';
        if printTau, tauFlag = sprintf(' %13.7e',tau); end
        if singleTau
-          printf(logB,iter,rNorm,rGap,gNorm,log10(stepG));
+          printf(logB,iter,rNorm,rGap,gNorm);
        else
-          printf(logB,iter,rNorm,rGap,rError1,gNorm,log10(stepG));
+          printf(logB,iter,rNorm,rGap,rError1,gNorm);
           if printTau
              printf(' %s', tauFlag);
           end
@@ -714,7 +741,11 @@ while 1
 
              % If ||dTrans|| is tiny it is (near) orthogonal to the face
              if (norm(dTrans,2) <= 1e-10 * max(1,norm(d,2)))
-                stat = EXIT_OPTIMAL;
+                if (singleTau)
+                   stat = EXIT_OPTIMAL;
+                else
+                   flagRequestUpdateTau = true;
+                end
              end
 
              if (~lnErr)
@@ -875,7 +906,7 @@ while 1
        end
 
        % Ensure that the projection is accurate
-       if (options.primal_norm(x,weights) > tau+optTol)
+       if (options.primal_norm(x,weights) > tau+projTol)
           x = xOld;  f = fOld;  g = gOld;  r = rOld;
           stat = EXIT_PROJECTION; break;
        end
@@ -1048,13 +1079,19 @@ if ((singleTau) && (f > fBest))
    gNorm = options.dual_norm(g,weights);
 end
 
+% Check the exit status
+if ((stat < 1) && (stat > size(EXIT_STATUS,1)))
+   error('Unknown termination condition\n');
+end
+
 % Final cleanup before exit.
 info.tau         = tau;
 info.rNorm       = rNorm;
-info.rGap        = rGap;
 info.gNorm       = gNorm;
 info.rGap        = rGap;
 info.stat        = stat;
+info.success     = EXIT_STATUS{stat,1};
+info.statusStr   = EXIT_STATUS{stat,2};
 info.iter        = iter;
 info.nProdA      = nProdA;
 info.nProdAt     = nProdAt;
@@ -1062,7 +1099,7 @@ info.nNewton     = nNewton;
 info.timeProject = timeProject;
 info.timeMatProd = timeMatProd;
 info.options     = options;
-info.timeTotal   = toc;
+info.timeTotal   = toc(t0);
 
 if (history)
    info.xNorm1      = historyXNorm1(1:iter);
@@ -1071,10 +1108,7 @@ if (history)
 end
 
 % Print final output
-if ((stat < 1) && (stat > length(EXIT_MESSAGES)))
-   error('Unknown termination condition\n');
-end
-printf('\n %s\n', EXIT_MESSAGES{stat})
+printf('\n %s\n', EXIT_STATUS{stat,2})
 printf('\n');
 printf(' %-20s:  %6i %6s %-20s:  %6.1f\n',...
    'Products with A',nProdA,'','Total time   (secs)', info.timeTotal);
@@ -1097,7 +1131,7 @@ function z = Aprod(x,mode)
      error('SPGL1:MaximumMatvec','');
    end
      
-   tStart = toc;
+   tStart = toc(t0);
    if mode == 1
       nProdA = nProdA + 1;
       if   explicit, z = A*x;
@@ -1111,7 +1145,7 @@ function z = Aprod(x,mode)
    else
       error('Wrong mode!');
    end
-   timeMatProd = timeMatProd + (toc - tStart);
+   timeMatProd = timeMatProd + (toc(t0) - tStart);
 end % function Aprod
 
 % ----------------------------------------------------------------------
@@ -1126,9 +1160,9 @@ end % function printf
 % ----------------------------------------------------------------------
 function x = project(x, tau)
 % ----------------------------------------------------------------------
-   tStart = toc;
+   tStart = toc(t0);
    x = options.project(x,weights,tau);
-   timeProject = timeProject + (toc - tStart);
+   timeProject = timeProject + (toc(t0) - tStart);
 end % function project
 
 % =====================================================================

@@ -344,30 +344,30 @@ end
 % Log header
 %----------------------------------------------------------------------
 printf('\n');
-printf(' %s\n',repmat('=',1,80));
+printf(' %s\n',repmat('=',1,67));
 printf(' SPGL1  v%s (%s)\n', REVISION, DATE);
-printf(' %s\n',repmat('=',1,80));
-printf(' %-22s: %8i %4s',   'No. rows',       m,      '');
-printf(' %-22s: %8i\n',     'No. columns',    n         );
-printf(' %-22s: %8.2e %4s', 'Initial tau',    tau,    '');
-printf(' %-22s: %8.2e\n',   'Two-norm of b',  bNorm     );
-printf(' %-22s: %8.2e %4s', 'Optimality tol', optTol, '');
+printf(' %s\n',repmat('=',1,67));
+printf(' %-20s: %8i %5s',   'No. rows',       m,      '');
+printf(' %-20s: %8.2e\n', 'Initial tau',    tau);
+printf(' %-20s: %8i %5s',     'No. columns',    n,''         );
+printf(' %-20s: %8.2e\n',   '2-norm of b',  bNorm     );
+printf(' %-20s: %8.2e %5s', 'Optimality tol', optTol, '');
 if singleTau
-   printf(' %-22s: %8.2e\n', 'Target one-norm of x', tau);
+   printf(' %-20s: %8.2e\n', 'bound on p-norm of x', tau);
 else
-   printf(' %-22s: %8.2e\n', 'Target objective', sigma);
+   printf(' %-20s: %8.2e\n', 'Target ||Ax-b||_2', sigma);
 end
-printf(' %-22s: %8.2e %4s', 'Basis pursuit tol', bpTol, '');
-printf(' %-22s: %8i\n',     'Maximum iterations',maxIts   );
+printf(' %-20s: %8.2e %5s', 'Basis pursuit tol', bpTol, '');
+printf(' %-20s: %8i\n',     'Maximum iterations',maxIts   );
 printf('\n');
 if singleTau
    logB = ' %5i  %13.7e  %13.7e  %9.2e';
    logH = ' %5s  %13s  %13s  %9s\n';
-   printf(logH,'Iter','Objective','Relative Gap','gNorm');
+   printf(logH,'Iter','||Ax-b||_2','Relative Gap','||A''r||_d');
 else
-   logB = ' %5i  %13.7e  %13.7e  %9.2e  %9.3e';
-   logH = ' %5s  %13s  %13s  %9s  %9s  %13s\n';
-   printf(logH,'Iter','Objective','Relative Gap','Rel Error','gNorm','tau');
+   logB = ' %5i  %13.7e  %13.7e  %9.2e  %9.2e';
+   logH = ' %5s  %13s  %13s  %9s  %9s  %8s\n';
+   printf(logH,'Iter','||Ax-b||_2','Relative Gap','Rel Error','||A''r||_d','||x||_p');
 end
 
 
@@ -693,7 +693,7 @@ while 1
     %------------------------------------------------------------------
     if ((logLevel >= 2) || singleTau || printTau || (iter == 0) || stat)
        tauFlag = '              ';
-       if printTau, tauFlag = sprintf(' %13.7e',tau); end
+       if printTau, tauFlag = sprintf(' %8.2e',tau); end
        if singleTau
           printf(logB,iter,rNorm,rGap,gNorm);
        else
@@ -1110,11 +1110,11 @@ end
 % Print final output
 printf('\n %s\n', EXIT_STATUS{stat,2})
 printf('\n');
-printf(' %-20s:  %6i %6s %-20s:  %6.1f\n',...
+printf(' %-20s:  %6i %6s %-20s:  %7.1f\n',...
    'Products with A',nProdA,'','Total time   (secs)', info.timeTotal);
-printf(' %-20s:  %6i %6s %-20s:  %6.1f\n',...
+printf(' %-20s:  %6i %6s %-20s:  %7.1f\n',...
    'Products with A''',nProdAt,'','Project time (secs)',timeProject);
-printf(' %-20s:  %6i %6s %-20s:  %6.1f\n',...
+printf(' %-20s:  %6i %6s %-20s:  %7.1f\n',...
    'Newton iterations',nNewton,'','Mat-vec time (secs)',timeMatProd);
 printf(' %-20s:  %6i\n', ...
    'Line search its',nLineTot);

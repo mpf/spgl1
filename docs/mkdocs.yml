@@ -1,0 +1,44 @@
+site_name: SPGL1 
+nav:
+  - Introduction: index.md
+  - Installation: install.md 
+  - Usage: usage.md
+  - Options: options.md
+  - Information structure: infostruct.md
+  - Theory: pareto.md
+  - Regularization: regularization.md
+  - Exit conditions: exits.md
+  - Citing: cite.md
+
+copyright: 'Copyright &copy; 2008 - 2019 Ewout van den Berg and Michael Friedlander'
+
+repo_url: https://github.com/mpf/spgl1
+site_author: 'E van den Berg and MP Friedlander'
+edit_uri: '' 
+theme:
+  name: 'material'
+  font:
+    text: 'Roboto'
+    code: 'Roboto Mono'
+markdown_extensions:
+  - def_list
+  - codehilite:
+      linenums: false
+  - admonition
+  - pymdownx.arithmatex
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.magiclink
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+extra_javascript:
+  - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'

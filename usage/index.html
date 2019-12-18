@@ -1,0 +1,763 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+      
+      
+        <meta name="author" content="E van den Berg and MP Friedlander">
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
+    
+    
+      
+        <title>Usage - SPGL1</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/application.1b62728e.css">
+      
+      
+    
+    
+      <script src="../assets/javascripts/modernizr.268332fc.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../assets/fonts/material-icons.css">
+    
+    
+    
+      
+    
+    
+  </head>
+  
+    <body dir="ltr">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#users-guide" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="SPGL1" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              SPGL1
+            </span>
+            <span class="md-header-nav__topic">
+              
+                Usage
+              
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/mpf/spgl1" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main" role="main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href=".." title="SPGL1" class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </a>
+    SPGL1
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/mpf/spgl1" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." title="Introduction" class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../install/" title="Installation" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Usage
+      </label>
+    
+    <a href="./" title="Usage" class="md-nav__link md-nav__link--active">
+      Usage
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#lasso" class="md-nav__link">
+    Lasso
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#basis-pursuit-denoise" class="md-nav__link">
+    Basis-pursuit denoise
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-norms" class="md-nav__link">
+    Group norms
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiple-measurement-vectors-mmv" class="md-nav__link">
+    Multiple measurement vectors (MMV)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generic-interface" class="md-nav__link">
+    Generic interface
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-norms" class="md-nav__link">
+    Custom norms
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../options/" title="Options" class="md-nav__link">
+      Options
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../infostruct/" title="Information structure" class="md-nav__link">
+      Information structure
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../pareto/" title="Theory" class="md-nav__link">
+      Theory
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../regularization/" title="Regularization" class="md-nav__link">
+      Regularization
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../exits/" title="Exit conditions" class="md-nav__link">
+      Exit conditions
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../cite/" title="Citing" class="md-nav__link">
+      Citing
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#lasso" class="md-nav__link">
+    Lasso
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#basis-pursuit-denoise" class="md-nav__link">
+    Basis-pursuit denoise
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#group-norms" class="md-nav__link">
+    Group norms
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiple-measurement-vectors-mmv" class="md-nav__link">
+    Multiple measurement vectors (MMV)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generic-interface" class="md-nav__link">
+    Generic interface
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-norms" class="md-nav__link">
+    Custom norms
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                <h1 id="users-guide">User's guide</h1>
+<h2 id="lasso">Lasso</h2>
+<p>The standard Lasso problem, given by</p>
+<div>
+<div class="MathJax_Preview">\mathop{\mathrm{minimize}}_{x}\quad {\textstyle\frac{1}{2}}\Vert Ax-b\Vert_2^2\quad\mathrm{subject\ to}\quad \Vert x\Vert_1 \leq \tau,</div>
+<script type="math/tex; mode=display">\mathop{\mathrm{minimize}}_{x}\quad {\textstyle\frac{1}{2}}\Vert Ax-b\Vert_2^2\quad\mathrm{subject\ to}\quad \Vert x\Vert_1 \leq \tau,</script>
+</div>
+<p>can be solved by SPGL1 using the <code class="codehilite"><span class="err">spg_lasso</span></code> function:
+<div class="codehilite"><pre><span></span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="p">=</span> <span class="n">spg_lasso</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span><span class="n">options</span><span class="p">)</span>
+</pre></div></p>
+<p>The <code class="codehilite"><span class="err">options</span></code> parameter controls the stopping criteria and behavior of the solver and consists of keyword-value pairs or structures (see <a href="../options/">solver options</a> for more details). Default options are used when no options are specified.</p>
+<p>As an example, let's create random matrix <span><span class="MathJax_Preview">A</span><script type="math/tex">A</script></span> and vector <span><span class="MathJax_Preview">b</span><script type="math/tex">b</script></span>, and solve the
+Lasso problem for <span><span class="MathJax_Preview">\tau=0.5</span><script type="math/tex">\tau=0.5</script></span> using:</p>
+<div class="codehilite"><pre><span></span><span class="n">s</span> <span class="p">=</span> <span class="n">RandStream</span><span class="p">(</span><span class="s">&#39;mt19937ar&#39;</span><span class="p">,</span><span class="s">&#39;Seed&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+<span class="n">A</span> <span class="p">=</span> <span class="nb">randn</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">);</span>
+<span class="n">b</span> <span class="p">=</span> <span class="nb">randn</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+<span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="p">=</span> <span class="n">spg_lasso</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="mf">0.5</span><span class="p">);</span>
+</pre></div>
+
+<p>The SPGL1 solver gives an output similar to this:</p>
+<div class="codehilite"><pre><span></span> ===================================================================
+ SPGL1  v2.0 (28 Nov 2019)
+ ===================================================================
+ No. rows            :        5       Initial tau         : 5.00e-01
+ No. columns         :       10       2-norm of b         : 1.86e+00
+ Optimality tol      : 1.00e-04       bound on 1-norm of x: 5.00e-01
+ Basis pursuit tol   : 1.00e-04       Maximum iterations  :       50
+
+  Iter     ||Ax-b||_2   Relative Gap  ||A&#39;r||_d
+     0  1.8616905e+00  9.7024931e-01   3.36e+00
+     1  1.4495790e+00  9.5092862e-01   2.74e+00
+     2  1.3023687e+00  6.1655207e-01   2.30e+00
+     3  1.2009939e+00  1.7815336e-01   1.43e+00
+     4  1.1775752e+00  1.5030186e-01   1.55e+00
+     5  1.1558273e+00  1.2492861e-01   1.34e+00
+     6  1.1513362e+00  7.1502516e-02   1.28e+00
+     7  1.1492592e+00  4.1721960e-02   1.22e+00
+     8  1.1465284e+00  3.8571207e-02   1.28e+00
+     9  1.1491912e+00  4.1627659e-02   1.47e+00
+    10  1.1486180e+00  4.0969188e-02   1.44e+00
+    11  1.1446930e+00  4.3987941e-03   1.25e+00
+    12  1.1446779e+00  4.0502125e-03   1.25e+00
+    13  1.1446237e+00  1.5756440e-04   1.25e+00
+    14  1.1446236e+00  2.5627973e-05   1.25e+00
+
+ EXIT -- Optimal solution found
+
+ Products with A     :      14        Total time   (secs) :      0.1
+ Products with A&#39;    :      15        Project time (secs) :      0.0
+ Newton iterations   :       0        Mat-vec time (secs) :      0.0
+ Line search its     :       0
+</pre></div>
+
+<p>The exit status indicates that an optimal solution was found. The output of the solver is given by the tuple <code class="codehilite"><span class="err">[x,r,g,info]</span></code> with the following fields: </p>
+<ul>
+<li>the computed solution <code class="codehilite"><span class="err">x</span></code></li>
+<li>the residual <code class="codehilite"><span class="err">r = b-Ax</span></code></li>
+<li>the gradient <code class="codehilite"><span class="err">g := -A&#39;r</span></code> of the objective at the solution</li>
+<li>an <code class="codehilite"><span class="err">info</span></code> structure that contains information such as the exit status, the number of iterations, and the total run time; see <a href="../infostruct/">Information Structure</a> for details.</li>
+</ul>
+<p>Continuing with our example, we find that if we solve Lasso with <span><span class="MathJax_Preview">\tau=1</span><script type="math/tex">\tau=1</script></span>, the required number of iterations exceed the default of 10 times the number of rows in <span><span class="MathJax_Preview">A</span><script type="math/tex">A</script></span>. We can increase the maximum number of iterations to 100 by calling
+<div class="codehilite"><pre><span></span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="p">=</span> <span class="n">spg_lasso</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s">&#39;iterations&#39;</span><span class="p">,</span><span class="mi">100</span><span class="p">);</span>
+</pre></div></p>
+<p>In this case around 90 iterations suffice to find an optimal solution.</p>
+<h2 id="basis-pursuit-denoise">Basis-pursuit denoise</h2>
+<p>The standard basis-pursuit denoise problem is given by</p>
+<div>
+<div class="MathJax_Preview">\mathop{\mathrm{minimize}}_{x}\quad  \Vert x\Vert_1\quad \mathrm{subject\ to}\quad \Vert Ax-b\Vert_2 \leq \sigma.</div>
+<script type="math/tex; mode=display">\mathop{\mathrm{minimize}}_{x}\quad  \Vert x\Vert_1\quad \mathrm{subject\ to}\quad \Vert Ax-b\Vert_2 \leq \sigma.</script>
+</div>
+<p>Solving the problem in SPGL1 can be done by calling the <code class="codehilite"><span class="err">spg_bpdn</span></code> function</p>
+<div class="codehilite"><pre><span></span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="p">=</span> <span class="n">spg_bpdn</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">sigma</span><span class="p">,</span><span class="n">options</span><span class="p">)</span>
+</pre></div>
+
+<p>In the special case where <span><span class="MathJax_Preview">\sigma=0</span><script type="math/tex">\sigma=0</script></span>, the problem reduces to the basis pursuit problem</p>
+<div>
+<div class="MathJax_Preview">\mathop{\mathrm{minimize}}_{x}\quad  \Vert x\Vert_1\quad \mathrm{subject\ to}\quad Ax=b,</div>
+<script type="math/tex; mode=display">\mathop{\mathrm{minimize}}_{x}\quad  \Vert x\Vert_1\quad \mathrm{subject\ to}\quad Ax=b,</script>
+</div>
+<p>which can be solved using the basis-pursuit solver:</p>
+<div class="codehilite"><pre><span></span>    <span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="p">=</span> <span class="n">spg_bp</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">options</span><span class="p">)</span>
+</pre></div>
+
+<p>The basis-pursuit solution is obtained by solving a sequence of Lasso problems with suitable values of <span><span class="MathJax_Preview">\tau</span><script type="math/tex">\tau</script></span>. The gradient output <code class="codehilite"><span class="err">g</span></code> thus refers to the objective value of the Lasso subproblem corresponding to the latest value of <span><span class="MathJax_Preview">\tau</span><script type="math/tex">\tau</script></span>. As an example, consider the same example used for the Lasso problem, now solved with basis-pursuit denoise for <span><span class="MathJax_Preview">\sigma=1.0</span><script type="math/tex">\sigma=1.0</script></span>:</p>
+<div class="codehilite"><pre><span></span><span class="n">s</span> <span class="p">=</span> <span class="n">RandStream</span><span class="p">(</span><span class="s">&#39;mt19937ar&#39;</span><span class="p">,</span><span class="s">&#39;Seed&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+<span class="n">A</span> <span class="p">=</span> <span class="nb">randn</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">);</span>
+<span class="n">b</span> <span class="p">=</span> <span class="nb">randn</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+<span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="p">=</span> <span class="n">spg_bpdn</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="mf">1.0</span><span class="p">);</span>
+</pre></div>
+
+<p>The solver gives an output similar to</p>
+<div class="codehilite"><pre><span></span> ===================================================================
+ SPGL1  v2.0 (28 Nov 2019)
+ ===================================================================
+ No. rows            :        5       Initial tau         : 0.00e+00
+ No. columns         :       10       2-norm of b         : 1.86e+00
+ Optimality tol      : 1.00e-04       Target ||Ax-b||_2   : 1.00e+00
+ Basis pursuit tol   : 1.00e-04       Maximum iterations  :       50
+
+  Iter     ||Ax-b||_2   Relative Gap  Rel Error  ||A&#39;r||_d   ||x||_p
+     0  1.8616905e+00  0.0000000e+00   4.63e-01   3.36e+00  4.77e-01
+     1  1.4973610e+00  5.2616060e-01   3.32e-01   2.12e+00
+     2  1.2974269e+00  1.9995584e-01   2.29e-01   1.62e+00
+     3  1.2030579e+00  8.1971765e-02   1.69e-01   1.77e+00
+     4  1.1995095e+00  7.7709077e-02   1.66e-01   1.91e+00  6.25e-01
+     5  1.0272341e+00  8.8274756e-02   2.65e-02   1.11e+00
+     6  1.0212485e+00  8.2144096e-02   2.08e-02   1.09e+00
+     7  1.0187911e+00  2.8385712e-02   1.84e-02   9.66e-01
+     8  1.0183832e+00  2.2393424e-02   1.81e-02   9.64e-01  6.45e-01
+     9  9.9870605e-01  1.6574628e-02   1.29e-03   9.45e-01
+    10  1.0008367e+00  1.8704785e-02   8.36e-04   1.11e+00
+    11  1.0070820e+00  2.4974860e-02   7.03e-03   1.30e+00
+    12  9.9794627e-01  1.5816119e-02   2.05e-03   1.01e+00
+    13  9.9785653e-01  9.7287655e-03   2.14e-03   9.87e-01  6.42e-01
+    14  9.9993939e-01  9.6116065e-03   6.06e-05   9.92e-01
+
+ EXIT -- Found a root
+
+ Products with A     :      18        Total time   (secs) :      0.1
+ Products with A&#39;    :      16        Project time (secs) :      0.0
+ Newton iterations   :       4        Mat-vec time (secs) :      0.0
+ Line search its     :       3
+</pre></div>
+
+<p>The last column of the output shows that four Lasso subproblems with different values of <span><span class="MathJax_Preview">\tau</span><script type="math/tex">\tau</script></span> are solved to obtain the basis-pursuit denoise solution.</p>
+<h2 id="group-norms">Group norms</h2>
+<p>SPGL1 supports group-sparse versions of the three main problem classes (Lasso, basis-pursuit denoise, and basis pursuit). The <em>group norm</em> is defined by given subsets of the vector elements, such that each element occurs in exactly one subset. The norm is then define as the sum of the Euclidean norms of the subvectors in each set. To solve the group-norm basis-pursuit denoise formulation we can use</p>
+<div class="codehilite"><pre><span></span><span class="err">[x,r,g,info] = spg_group(A,b,groups,sigma,options)</span>
+</pre></div>
+
+
+<p>The <code class="codehilite"><span class="err">groups</span></code> parameter is a vector that contains the group number for each of the elements in <code class="codehilite"><span class="err">x</span></code>. The group numbers themselves can be chosen arbitrary, as long as elements in the same group have the same number. Groups do not have to consist of contiguous elements, although in practice they often are.</p>
+<p>In the following example we use three groups, labeled <code class="codehilite"><span class="err">1</span></code>, <code class="codehilite"><span class="err">2</span></code>, and <code class="codehilite"><span class="err">3</span></code>:</p>
+<div class="codehilite"><pre><span></span><span class="n">s</span> <span class="p">=</span> <span class="n">RandStream</span><span class="p">(</span><span class="s">&#39;mt19937ar&#39;</span><span class="p">,</span><span class="s">&#39;Seed&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+<span class="n">A</span> <span class="p">=</span> <span class="nb">randn</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">);</span>
+<span class="n">b</span> <span class="p">=</span> <span class="nb">randn</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">sigma</span> <span class="p">=</span> <span class="mf">1.2</span>
+<span class="n">x</span> <span class="p">=</span> <span class="n">spg_group</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="n">sigma</span><span class="p">);</span>
+</pre></div>
+
+<p>In this case we get a result that is group-sparse: the elements in some groups are all zero, whereas those in other groups are all non-zero:</p>
+<div class="codehilite"><pre><span></span>  x =
+
+         0
+         0
+         0
+   -0.1804
+   -0.2038
+   -0.1107
+    0.0037
+         0
+         0
+         0
+</pre></div>
+
+<h2 id="multiple-measurement-vectors-mmv">Multiple measurement vectors (MMV)</h2>
+<p>A special case of group sparsity is the multiple-measurement vectors (MMV) problem. In this problem we are given a matrix of measurements <code class="codehilite"><span class="err">B</span></code>, and assume that the unknown matrix <code class="codehilite"><span class="err">X</span></code> is such that all columns have the same support. This is often achieved by minimizing the sum of Euclidean norms of the rows in <code class="codehilite"><span class="err">X</span></code>. This can be reformulated as a group-norm problem by appropriately vectorizing <code class="codehilite"><span class="err">B</span></code> and <code class="codehilite"><span class="err">X</span></code>, and suitably redefining <code class="codehilite"><span class="err">A</span></code>. </p>
+<p>For convenience SPGL1 provides the function</p>
+<div class="codehilite"><pre><span></span><span class="err">[X,R,G,info] = spg_mmv(A,B,sigma,options);</span>
+</pre></div>
+
+
+<p>As an example, we solve</p>
+<div class="codehilite"><pre><span></span><span class="n">s</span> <span class="p">=</span> <span class="n">RandStream</span><span class="p">(</span><span class="s">&#39;mt19937ar&#39;</span><span class="p">,</span><span class="s">&#39;Seed&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+<span class="n">A</span> <span class="p">=</span> <span class="nb">randn</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">7</span><span class="p">);</span>
+<span class="n">B</span> <span class="p">=</span> <span class="nb">randn</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">);</span>
+<span class="p">[</span><span class="n">X</span><span class="p">,</span><span class="n">R</span><span class="p">,</span><span class="n">G</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="p">=</span> <span class="n">spg_mmv</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="mf">3.5</span><span class="p">);</span>
+</pre></div>
+
+<p>which gives</p>
+<div class="codehilite"><pre><span></span> X =
+
+    0.1102   -0.0296   -0.0177    0.0365   -0.0298   -0.0218
+    0.0123    0.0042    0.1348   -0.0577   -0.0208    0.1842
+   -0.0020   -0.0001   -0.0008    0.0009   -0.0087    0.0027
+         0         0         0         0         0         0
+    0.0806    0.0252    0.0703   -0.1165    0.0985    0.0176
+         0         0         0         0         0         0
+    0.2815    0.1036   -0.1306    0.0197   -0.0596   -0.2179
+</pre></div>
+
+<h2 id="generic-interface">Generic interface</h2>
+<p>The generic interface to SPGL1 is given by</p>
+<div class="codehilite"><pre><span></span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="p">=</span> <span class="n">spgl1</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span><span class="n">sigma</span><span class="p">,</span><span class="n">x0</span><span class="p">,</span><span class="n">options</span><span class="p">)</span>
+<span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="p">=</span> <span class="n">spgl1</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span><span class="n">sigma</span><span class="p">,</span><span class="n">options</span><span class="p">)</span>
+<span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="p">=</span> <span class="n">spgl1</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span><span class="n">options</span><span class="p">)</span>
+</pre></div>
+
+<ul>
+<li>
+<p>The <code class="codehilite"><span class="err">options</span></code> parameters are optional and can be a mixture of structure objects and key-value pairs. The first option parameter can be a string identifying a predefined parameter set, which can then be modified by the parameters that follow. See the examples in <a href="../options/">options</a>.</p>
+</li>
+<li>
+<p>The <code class="codehilite"><span class="err">x0</span></code> parameter can be provided to initialize <span><span class="MathJax_Preview">x</span><script type="math/tex">x</script></span>. If set, the parameters <code class="codehilite"><span class="err">tau</span></code> and <code class="codehilite"><span class="err">sigma</span></code> must also be provided.</p>
+</li>
+<li>
+<p>To solve the Lasso problem formulation with an initial value for <code class="codehilite"><span class="err">x</span></code>, set <code class="codehilite"><span class="err">sigma</span></code> to the empty vector <code class="codehilite"><span class="err">[]</span></code>. In order to solve basis pursuit denoise we can set <code class="codehilite"><span class="err">tau</span></code> to <code class="codehilite"><span class="err">0</span></code> or an empty vector <code class="codehilite"><span class="err">[]</span></code> (strongly recommended), or provide an initial value for <code class="codehilite"><span class="err">tau</span></code> (generally not recommended). In case an initial value of <code class="codehilite"><span class="err">tau</span></code> is specified, it is important that this value be smaller than the value for tau at the solution; reduction of <code class="codehilite"><span class="err">tau</span></code> from a value that is too large can be very time consuming or result in a suboptimal basis-pursuit solution. When the <code class="codehilite"><span class="err">x0</span></code> parameter is set to the empty vector <code class="codehilite"><span class="err">[]</span></code>, a default initial value for <span><span class="MathJax_Preview">x</span><script type="math/tex">x</script></span> is used.</p>
+</li>
+</ul>
+<h2 id="custom-norms">Custom norms</h2>
+<p>SPGL1 can be extended to solve Lasso and basis-pursuit denoise problems with
+custom primal norms. For this we need to provide three functions</p>
+<ol>
+<li><code class="codehilite"><span class="err">options.primal_norm</span></code>, which evaluates the primal norm <span><span class="MathJax_Preview">\|x\|_p</span><script type="math/tex">\|x\|_p</script></span> of a given vector <span><span class="MathJax_Preview">x</span><script type="math/tex">x</script></span>;</li>
+<li><code class="codehilite"><span class="err">options.dual_norm</span></code>, which evaluates the dual norm <span><span class="MathJax_Preview">\|y\|_d</span><script type="math/tex">\|y\|_d</script></span> corresponding to the primal norm;</li>
+<li><code class="codehilite"><span class="err">options.project</span></code>, which evaluates orthogonal projection onto a scaled unit-norm ball corresponding to the primal norm, i.e., onto the set <span><span class="MathJax_Preview">\mathcal{B}_p:=\{x \mid \|x\|_p\le\tau\}</span><script type="math/tex">\mathcal{B}_p:=\{x \mid \|x\|_p\le\tau\}</script></span> for some positive value <span><span class="MathJax_Preview">\tau</span><script type="math/tex">\tau</script></span>.</li>
+</ol>
+<p>Good examples of the definition of these norms can be found in the <code class="codehilite"><span class="err">spg_group</span></code> solver.</p>
+                
+                  
+                
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../install/" title="Installation" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Installation
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../options/" title="Options" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Options
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy; 2008 - 2019 Ewout van den Berg and Michael Friedlander
+          </div>
+        
+        powered by
+        <a href="https://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/application.808e90bb.js"></script>
+      
+      <script>app.initialize({version:"1.0.4",url:{base:".."}})</script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+      
+    
+  </body>
+</html>

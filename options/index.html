@@ -38,7 +38,7 @@
     
     
       
-        <title>Options - SPGL1</title>
+        <title>Options - SPGL1 - Sparse Least Squares</title>
       
     
     
@@ -88,7 +88,7 @@
   <nav class="md-header-nav md-grid">
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
-        <a href=".." title="SPGL1" class="md-header-nav__button md-logo">
+        <a href=".." title="SPGL1 - Sparse Least Squares" class="md-header-nav__button md-logo">
           
             <i class="md-icon"></i>
           
@@ -101,7 +101,7 @@
         <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
           
             <span class="md-header-nav__topic">
-              SPGL1
+              SPGL1 - Sparse Least Squares
             </span>
             <span class="md-header-nav__topic">
               
@@ -180,12 +180,12 @@
                   <div class="md-sidebar__inner">
                     <nav class="md-nav md-nav--primary" data-md-level="0">
   <label class="md-nav__title md-nav__title--site" for="__drawer">
-    <a href=".." title="SPGL1" class="md-nav__button md-logo">
+    <a href=".." title="SPGL1 - Sparse Least Squares" class="md-nav__button md-logo">
       
         <i class="md-icon"></i>
       
     </a>
-    SPGL1
+    SPGL1 - Sparse Least Squares
   </label>
   
     <div class="md-nav__source">
@@ -228,8 +228,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../install/" title="Installation" class="md-nav__link">
-      Installation
+    <a href="../install/" title="Install & Download" class="md-nav__link">
+      Install & Download
     </a>
   </li>
 
@@ -277,6 +277,13 @@
   
     <label class="md-nav__title" for="__toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#superset-options" class="md-nav__link">
+    Superset options
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#output-options" class="md-nav__link">
@@ -351,8 +358,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../infostruct/" title="Information structure" class="md-nav__link">
-      Information structure
+    <a href="../infostruct/" title="Information Structure" class="md-nav__link">
+      Information Structure
     </a>
   </li>
 
@@ -363,8 +370,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../pareto/" title="Theory" class="md-nav__link">
-      Theory
+    <a href="../exits/" title="Exit Conditions" class="md-nav__link">
+      Exit Conditions
     </a>
   </li>
 
@@ -387,8 +394,20 @@
 
 
   <li class="md-nav__item">
-    <a href="../exits/" title="Exit conditions" class="md-nav__link">
-      Exit conditions
+    <a href="../pareto/" title="Theory" class="md-nav__link">
+      Theory
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../changelog/" title="ChangeLog" class="md-nav__link">
+      ChangeLog
     </a>
   </li>
 
@@ -424,6 +443,13 @@
   
     <label class="md-nav__title" for="__toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#superset-options" class="md-nav__link">
+    Superset options
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#output-options" class="md-nav__link">
@@ -499,12 +525,14 @@
                 
                 
                 <h1 id="solver-options">Solver options</h1>
-<p>Below we discuss the available options in the form <code class="codehilite"><span class="err">options.&lt;name&gt;</span></code>. These values can be set directly in the options structure, or can be provided as key-value pairs with <code class="codehilite"><span class="err">&lt;name&gt;&gt;</span></code> as the key. Some examples for option usage are as follows:</p>
+<p>Below we discuss the available options in the form <code class="codehilite"><span class="err">options.&lt;name&gt;</span></code>. These values can be set directly in the <code class="codehilite"><span class="err">options</span></code> structure, or can be provided as key-value pairs with <code class="codehilite"><span class="err">&lt;name&gt;&gt;</span></code> as the key.</p>
+<p>In this example, the maximum number of iterations is set to 1000 and all output is suppressed via the verbosity level of 0:
 <div class="codehilite"><pre><span></span><span class="c">% Direct specification of parameters</span>
-<span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="p">=</span> <span class="n">spgl1</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span><span class="s">&#39;classic&#39;</span><span class="p">,</span><span class="s">&#39;iterations&#39;</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span><span class="s">&#39;verbosity&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
-
-<span class="c">% Separate preparation of the options</span>
-<span class="n">options</span> <span class="p">=</span> <span class="n">spgSetParams</span><span class="p">(</span><span class="s">&#39;classic&#39;</span><span class="p">,</span><span class="s">&#39;iterations&#39;</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span><span class="s">&#39;verbosity&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="p">=</span> <span class="n">spgl1</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span><span class="s">&#39;iterations&#39;</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span><span class="s">&#39;verbosity&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+</pre></div>
+Options can also be passed in via a single structure, which can be populated with default options via <code class="codehilite"><span class="err">spgSetParams</span></code>, or can be set directly:
+<div class="codehilite"><pre><span></span><span class="c">% Separate preparation of the options</span>
+<span class="n">options</span> <span class="p">=</span> <span class="n">spgSetParams</span><span class="p">(</span><span class="s">&#39;iterations&#39;</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span><span class="s">&#39;verbosity&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
 <span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="p">=</span> <span class="n">spgl1</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span><span class="n">options</span><span class="p">);</span>
 
 <span class="c">% Manual creation of the options structure</span>
@@ -512,11 +540,21 @@
 <span class="n">options</span><span class="p">.</span><span class="n">iterations</span> <span class="p">=</span> <span class="mi">1000</span><span class="p">;</span>
 <span class="n">options</span><span class="p">.</span><span class="n">verbosity</span>  <span class="p">=</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="p">=</span> <span class="n">spgl1</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span><span class="n">options</span><span class="p">);</span>
-
-<span class="c">% Function call with mixed structure and key-value pair parameters</span>
-<span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="p">=</span> <span class="n">spgl1</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span><span class="s">&#39;classic&#39;</span><span class="p">,</span><span class="n">options</span><span class="p">,</span><span class="s">&#39;mu&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
 </pre></div>
+Individual parameters override the options structure:
+<div class="codehilite"><pre><span></span><span class="c">% Function call with mixed structure and key-value pair parameters</span>
+<span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="p">=</span> <span class="n">spgl1</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span><span class="n">options</span><span class="p">,</span><span class="s">&#39;mu&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+</pre></div></p>
+<h2 id="superset-options">Superset options</h2>
+<p>SPGL1 supports two predefined sets of parameters, called "classic" (default) and "hybrid". Among other options, the classic mode sets <code class="codehilite"><span class="err">options.rootfindMode=1</span></code> (primal root finding) and <code class="codehilite"><span class="err">options.hybridMode=false</span></code> (no subspace search). The <code class="codehilite"><span class="err">hybrid</span></code> mode sets <code class="codehilite"><span class="err">options.rootfindMode=1</span></code> (dual root finding) and <code class="codehilite"><span class="err">options.hybridMode=true</span></code>. Roughly, the "classic" mode is faster and less accurate than the "hybrid" mode. Please see the <a href="../pareto/">Theory section</a> for further detail.</p>
+<p>These two examples show how to specify the superset options:
+<div class="codehilite"><pre><span></span><span class="c">% Use &quot;classic&quot; mode and set mu=0</span>
+<span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="p">=</span> <span class="n">spgl1</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span><span class="s">&#39;classic&#39;</span><span class="p">,</span><span class="s">&#39;mu&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
 
+<span class="c">% Use &quot;hybrid&quot; mode</span>
+<span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">info</span><span class="p">]</span> <span class="p">=</span> <span class="n">spg_bpdn</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="s">&#39;hybrid&#39;</span><span class="p">);</span>
+</pre></div></p>
+<p>The specific options for each mode are available <a href="https://github.com/mpf/spgl1/blob/569e20f66aa6a4895dcac72de9cb34fce65e53e2/spgSetParms.m#L20">here</a>.</p>
 <h2 id="output-options">Output options</h2>
 <dl>
 <dt><strong>options.fid</strong></dt>
@@ -681,13 +719,13 @@ sub-problems. By default this value is set to 0.5.</dd>
           </a>
         
         
-          <a href="../infostruct/" title="Information structure" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../infostruct/" title="Information Structure" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Information structure
+                Information Structure
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">

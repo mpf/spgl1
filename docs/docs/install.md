@@ -2,8 +2,7 @@
 
 !!! abstract "Download the distribution"
 
-    * spgl1-1.9 (zip)
-    * spgl1-2.0-beta (zip)
+    * [spgl1-2.0 (zip)](https://github.com/mpf/spgl1/archive/v2.0.zip)
 
 ## Installation
 

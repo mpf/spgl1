@@ -1,14 +1,16 @@
 # Solver options
 
-Below we discuss the available options in the form ``options.<name>``. These values can be set directly in the options structure, or can be provided as key-value pairs with ``<name>>`` as the key. Some examples for option usage are as follows:
+Below we discuss the available options in the form ``options.<name>``. These values can be set directly in the ``options`` structure, or can be provided as key-value pairs with ``<name>>`` as the key.
 
-
+In this example, the maximum number of iterations is set to 1000 and all output is suppressed via the verbosity level of 0:
 ```matlab
 % Direct specification of parameters
-[x,r,g,info] = spgl1(A,b,tau,'classic','iterations',1000,'verbosity',0);
-
+[x,r,g,info] = spgl1(A,b,tau,'iterations',1000,'verbosity',0);
+```
+Options can also be passed in via a single structure, which can be populated with default options via ``spgSetParams``, or can be set directly:
+```matlab
 % Separate preparation of the options
-options = spgSetParams('classic','iterations',1000,'verbosity',0);
+options = spgSetParams('iterations',1000,'verbosity',0);
 [x,r,g,info] = spgl1(A,b,tau,options);
 
 % Manual creation of the options structure
@@ -16,10 +18,28 @@ options = struct();
 options.iterations = 1000;
 options.verbosity  = 0;
 [x,r,g,info] = spgl1(A,b,tau,options);
-
-% Function call with mixed structure and key-value pair parameters
-[x,r,g,info] = spgl1(A,b,tau,'classic',options,'mu',0);
 ```
+Individual parameters override the options structure:
+```matlab
+% Function call with mixed structure and key-value pair parameters
+[x,r,g,info] = spgl1(A,b,tau,options,'mu',0);
+```
+
+## Superset options
+
+SPGL1 supports two predefined sets of parameters, called "classic" (default) and "hybrid". Among other options, the classic mode sets ``options.rootfindMode=1`` (primal root finding) and ``options.hybridMode=false`` (no subspace search). The ``hybrid`` mode sets ``options.rootfindMode=1`` (dual root finding) and ``options.hybridMode=true``. Roughly, the "classic" mode is faster and less accurate than the "hybrid" mode. Please see the [Theory section](pareto.md) for further detail.
+
+These two examples show how to specify the superset options:
+```matlab
+% Use "classic" mode and set mu=0
+[x,r,g,info] = spgl1(A,b,tau,'classic','mu',0);
+
+% Use "hybrid" mode
+[x,r,g,info] = spg_bpdn(A,b,'hybrid');
+```
+
+The specific options for each mode are available [here](https://github.com/mpf/spgl1/blob/569e20f66aa6a4895dcac72de9cb34fce65e53e2/spgSetParms.m#L20).
+
 
 ## Output options
 

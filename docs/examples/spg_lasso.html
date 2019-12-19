@@ -1,0 +1,181 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+<html xmlns:mwsh="http://www.mathworks.com/namespace/mcode/v1/syntaxhighlight.dtd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>spg_lasso</title>
+      <meta name="generator" content="MATLAB 7.6">
+      <meta name="date" content="2008-06-17">
+      <meta name="m-file" content="spg_lasso"><style>
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head>
+   <body>
+      <div class="content"><pre class="codeinput"><span class="keyword">function</span> [x,r,g,info] = spg_lasso(A,b,tau,options )
+<span class="comment">%SPG_LASSO  Solve the LASSO  problem</span>
+<span class="comment">%</span>
+<span class="comment">%   SPG_LASSO is designed to solve the LASSO problem</span>
+<span class="comment">%</span>
+<span class="comment">%   (LASSO)  minimize  ||AX - B||_2  subject to  ||X||_1 &lt;= tau,</span>
+<span class="comment">%</span>
+<span class="comment">%   where A is an M-by-N matrix, B is an M-vector, and TAU is a</span>
+<span class="comment">%   nonnegative scalar.  In all cases below, A can be an explicit M-by-N</span>
+<span class="comment">%   matrix or matrix-like object for which the operations  A*x  and  A'*y</span>
+<span class="comment">%   are defined (i.e., matrix-vector multiplication with A and its</span>
+<span class="comment">%   adjoint.)</span>
+<span class="comment">%</span>
+<span class="comment">%   Also, A can be a function handle that points to a function with the</span>
+<span class="comment">%   signature</span>
+<span class="comment">%</span>
+<span class="comment">%   v = A(w,mode)   which returns  v = A *w  if mode == 1;</span>
+<span class="comment">%                                  v = A'*w  if mode == 2.</span>
+<span class="comment">%</span>
+<span class="comment">%   X = SPG_LASSO(A,B,TAU) solves the LASSO problem.</span>
+<span class="comment">%</span>
+<span class="comment">%   X = SPG_LASSO(A,B,TAU,OPTIONS) specifies options that are set using</span>
+<span class="comment">%   SPGSETPARMS.</span>
+<span class="comment">%</span>
+<span class="comment">%   [X,R,G,INFO] = SPG_LASSO(A,B,TAU,OPTIONS) additionally returns the</span>
+<span class="comment">%   residual R = B - A*X, the objective gradient G = A'*R, and an INFO</span>
+<span class="comment">%   structure.  (See SPGL1 for a description of this last output argument.)</span>
+<span class="comment">%</span>
+<span class="comment">%   See also spgl1, spgSetParms, spg_bp, spg_bpdn.</span>
+
+<span class="comment">%   Copyright 2008, Ewout van den Berg and Michael P. Friedlander</span>
+<span class="comment">%   http://www.cs.ubc.ca/labs/scl/spgl1</span>
+<span class="comment">%   $Id: spg_lasso.html 1019 2008-06-17 19:33:48Z mpf $</span>
+
+<span class="keyword">if</span> ~exist(<span class="string">'options'</span>,<span class="string">'var'</span>), options = []; <span class="keyword">end</span>
+<span class="keyword">if</span> ~exist(<span class="string">'tau'</span>,<span class="string">'var'</span>), tau = []; <span class="keyword">end</span>
+<span class="keyword">if</span> ~exist(<span class="string">'b'</span>,<span class="string">'var'</span>) || isempty(b)
+    error(<span class="string">'Second argument cannot be empty.'</span>);
+<span class="keyword">end</span>
+<span class="keyword">if</span> ~exist(<span class="string">'A'</span>,<span class="string">'var'</span>) || isempty(A)
+    error(<span class="string">'First argument cannot be empty.'</span>);
+<span class="keyword">end</span>
+
+sigma = [];
+x0  = [];
+[x,r,g,info] = spgl1(A,b,tau,sigma,x0,options);
+</pre><pre class="codeoutput">Error using ==&gt; spg_lasso at 38
+Second argument cannot be empty.
+
+Error in ==&gt; spg_lasso at 38
+    error('Second argument cannot be empty.');
+
+</pre><p class="footer"><br>
+            Published with MATLAB&reg; 7.6<br></p>
+      </div>
+      <!--
+##### SOURCE BEGIN #####
+function [x,r,g,info] = spg_lasso(A,b,tau,options )
+%SPG_LASSO  Solve the LASSO  problem
+%
+%   SPG_LASSO is designed to solve the LASSO problem
+%
+%   (LASSO)  minimize  ||AX - B||_2  subject to  ||X||_1 <= tau,
+%
+%   where A is an M-by-N matrix, B is an M-vector, and TAU is a
+%   nonnegative scalar.  In all cases below, A can be an explicit M-by-N
+%   matrix or matrix-like object for which the operations  A*x  and  A'*y
+%   are defined (i.e., matrix-vector multiplication with A and its
+%   adjoint.)
+%
+%   Also, A can be a function handle that points to a function with the
+%   signature
+%
+%   v = A(w,mode)   which returns  v = A *w  if mode == 1;
+%                                  v = A'*w  if mode == 2. 
+%   
+%   X = SPG_LASSO(A,B,TAU) solves the LASSO problem.
+%
+%   X = SPG_LASSO(A,B,TAU,OPTIONS) specifies options that are set using
+%   SPGSETPARMS.
+%
+%   [X,R,G,INFO] = SPG_LASSO(A,B,TAU,OPTIONS) additionally returns the
+%   residual R = B - A*X, the objective gradient G = A'*R, and an INFO
+%   structure.  (See SPGL1 for a description of this last output argument.)
+%
+%   See also spgl1, spgSetParms, spg_bp, spg_bpdn.
+
+%   Copyright 2008, Ewout van den Berg and Michael P. Friedlander
+%   http://www.cs.ubc.ca/labs/scl/spgl1
+%   $Id: spg_lasso.html 1019 2008-06-17 19:33:48Z mpf $
+
+if ~exist('options','var'), options = []; end
+if ~exist('tau','var'), tau = []; end
+if ~exist('b','var') || isempty(b)
+    error('Second argument cannot be empty.');
+end
+if ~exist('A','var') || isempty(A)
+    error('First argument cannot be empty.');
+end
+
+sigma = [];
+x0  = [];
+[x,r,g,info] = spgl1(A,b,tau,sigma,x0,options);
+
+    
+##### SOURCE END #####
+-->
+   </body>
+</html>

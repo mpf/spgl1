@@ -1,5 +1,5 @@
 web/eqs
 web/*.html
 *~
-docs/site
+site
 .DS_Store

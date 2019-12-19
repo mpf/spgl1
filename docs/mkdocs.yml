@@ -1,13 +1,13 @@
-site_name: SPGL1 
+site_name: SPGL1 - Sparse Least Squares 
 nav:
   - Introduction: index.md
-  - Installation: install.md 
+  - Instal & Download: install.md 
   - Usage: usage.md
   - Options: options.md
-  - Information structure: infostruct.md
-  - Theory: pareto.md
+  - Information Structure: infostruct.md
+  - Exit Conditions: exits.md
   - Regularization: regularization.md
-  - Exit conditions: exits.md
+  - Theory: pareto.md
   - Citing: cite.md
 
 copyright: 'Copyright &copy; 2008 - 2019 Ewout van den Berg and Michael Friedlander'

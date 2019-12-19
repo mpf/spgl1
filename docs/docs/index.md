@@ -1,4 +1,4 @@
-# SPGL1: A solver for sparse optimization
+# SPGL1: A solver for sparse least squares
 
 SPGL1 is an open-source Matlab solver for sparse least-squares. It is designed to solve any one of these three problem formulations:
 
@@ -28,7 +28,7 @@ $$\mathop{\mathrm{minimize}}_{x}\quad \Vert x\Vert_p\quad \mathrm{subject\ to}\q
 
 We are glad to hear from you if you find SPGL1 useful, or if you have any suggestions, contributions, or bug reports. Please send these to the SPGL1 authors
 
-* Ewout van den Berg (Email ``vandenberg.ewout@gmail.com>``)
+* Ewout van den Berg (Email ``<vandenberg.ewout@gmail.com>``)
 * [Michael P. Friedlander](https://friedlander.io) (Email: ``<mpf@cs.ubc.ca>``)
 
 ## Credits

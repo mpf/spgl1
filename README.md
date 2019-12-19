@@ -2,7 +2,8 @@
 
 [![GitHub license](https://img.shields.io/github/license/mpf/spgl1)](https://github.com/mpf/spgl1/blob/master/COPYING)
 [![DOI:10.1137/080714488](https://zenodo.org/badge/DOI/10.1137/080714488.svg)](https://doi.org/10.1137/080714488)
-[![version 2.0][docs-img]](https://friedlander.io/spgl1)
+
+* **Documentation**: https://friedlander.io/spgl1
 
 ## Introduction
 

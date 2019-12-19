@@ -10,7 +10,7 @@ nav:
   - Theory: pareto.md
   - ChangeLog: changelog.md
   - Citing: cite.md
-  - Examples: /examples/spgexamples.html
+  - Examples: examples/spgexamples.html
 
 copyright: 'Copyright &copy; 2008 - 2019 Ewout van den Berg and Michael Friedlander'
 

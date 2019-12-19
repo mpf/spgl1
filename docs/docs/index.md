@@ -1,5 +1,11 @@
 # SPGL1: A solver for sparse least squares
 
+!!! note "[version 2.0](install.md) released December 2020"
+
+    This latest release of SPGL1 implements a dual root-finding
+    mode that allows for increased accuracy for basis pusuit denoising
+    problems. See [Theory](pareto.md).
+
 SPGL1 is an open-source Matlab solver for sparse least-squares. It is designed to solve any one of these three problem formulations:
 
 **Lasso problem**

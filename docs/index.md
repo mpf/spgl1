@@ -1,6 +1,6 @@
 # SPGL1: A solver for sparse least squares
 
-!!! note "[version 2.1](install.md) released December 2019"
+!!! note "[version 2.1](install.md) released June 2020"
 
     This latest release of SPGL1 implements a dual root-finding
     mode that allows for increased accuracy for basis pusuit denoising

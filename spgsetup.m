@@ -32,11 +32,11 @@ try
     mex oneProjectorMex.c oneProjectorCore.c heap.c -output oneProjectorMex -DNDEBUG
     fprintf('Successfully compiled oneProjector.\n');
     cd(root)
-catch
+catch err
     cd(root)
     fprintf('Could not compile oneProjector.');
     fprintf('You can still use the slower ".m" version.');
-    rethrow(lasterr);
+    rethrow(err);
 end
 
 try
@@ -44,8 +44,8 @@ try
     mex productBMex.c -DNDEBUG
     fprintf('Successfully compiled productB.\n');
     cd(root)
-catch
+catch err
     cd(root)
     fprintf('Could not compile productB.');
-    rethrow(lasterr);
+    rethrow(err);
 end

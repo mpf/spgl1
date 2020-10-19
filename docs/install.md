@@ -6,11 +6,12 @@
 
 ## Installation
 
-1. Unzip the distribution. This will create a directory called `spgl1/`. We'll refer to this directory as `<spgroot>`.
+1. Unzip the distribution. This will create a directory called `spgl1-2.1/`.
 2. Start Matlab and execute the following commands from the Matlab prompt.
+
 ```matlab
->> addpath <spgroot>  # Add Matlab to your path
->> cd <spgroot>       # Change directory
+>> addpath spgl1-2.1  # Add Matlab to your path
+>> cd spgl1-2.1       # Change directory
 >> spgsetup           # Run SPGL1's setup routine
 ```
 
